@@ -84,5 +84,4 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(layout);
     }
-
 }

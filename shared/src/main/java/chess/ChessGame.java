@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     private ChessBoard board;
-    private TeamColor currentColor;
+    private TeamColor currentTurnColor;
 
     public ChessGame() {
 
@@ -20,7 +21,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return currentColor;
+        return currentTurnColor;
     }
 
     /**
@@ -29,7 +30,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        currentColor = team;
+        currentTurnColor = team;
     }
 
     /**
@@ -104,7 +105,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -114,6 +114,5 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
-        //throw new RuntimeException("Not implemented");
     }
 }
