@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -9,9 +10,9 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
+    private final PieceType type;
+    private final ChessGame.TeamColor color;
 
-    PieceType type;
-    ChessGame.TeamColor color;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.type = type;
         this.color = pieceColor;
@@ -34,7 +35,6 @@ public class ChessPiece {
      */
     public ChessGame.TeamColor getTeamColor() {
         return color;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -42,7 +42,6 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return type;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -53,6 +52,41 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        switch(getPieceType()) {
+            case PAWN -> moves = pawnMoves(board, myPosition);
+            case KNIGHT -> moves = knightMoves(board, myPosition);
+            case BISHOP -> moves = bishopMoves(board, myPosition);
+            case ROOK -> moves = rookMoves(board, myPosition);
+            case QUEEN -> moves = queenMoves(board, myPosition);
+            case KING -> moves = kingMoves(board, myPosition);
+        }
+
+        return moves;
+    }
+
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
     }
 }

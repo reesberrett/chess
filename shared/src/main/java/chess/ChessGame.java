@@ -21,7 +21,6 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         return currentColor;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -31,7 +30,6 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         currentColor = team;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
