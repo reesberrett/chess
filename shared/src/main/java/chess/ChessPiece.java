@@ -86,7 +86,87 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+
+        //moving left 2 and up 1
+        if (r + 1 <= 8 && c - 2 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 1, c - 2);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving left 2 and down 1
+        if (r - 1 >= 1 && c - 2 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 1, c - 2);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving up 2 and left 1
+        if (r + 2 <= 8 && c - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 2, c - 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving up 2 and right 1
+        if (r + 2 <= 8 && c + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 2, c + 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving right 2 and up 1
+        if (r + 1 <= 8 && c + 2 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 1, c + 2);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+
+        }
+        //moving right 2 and down 1
+        if (r - 1 >= 1 && c + 2 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 1, c + 2);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving down 2 and right 1
+        if (r - 2 >= 1 && c + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 2, c + 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+
+        }
+        //moving down 2 and left 1
+        if (r - 2 >= 1 && c - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 2, c - 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+
+        return moves;
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
@@ -432,6 +512,86 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+
+        //moving up
+        if (r + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 1, c);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving down
+        if (r - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 1, c);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving right
+        if (c + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r, c + 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving right
+        if (c - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r, c - 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving up and right
+        if (r + 1 <= 8 && c + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 1, c + 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+
+        }
+        //moving up and left
+        if (r + 1 <= 8 && c - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r + 1, c - 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+        //moving down and right
+        if (r - 1 >= 1 && c + 1 <= 8) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 1, c + 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+
+        }
+        //moving down and left
+        if (r - 1 >= 1 && c - 1 >= 1) {
+
+            ChessPosition currentPosition = new ChessPosition(r - 1, c - 1);
+            ChessPiece currentPiece = board.getPiece(currentPosition);
+
+            if (currentPiece == null || currentPiece.getTeamColor() != getTeamColor())
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+        }
+
+        return moves;
     }
 }
