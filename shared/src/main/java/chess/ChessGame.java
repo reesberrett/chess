@@ -135,8 +135,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
 
         //Iterate through every square to find enemy pieces
-        for (int r = 1; r < 9; r++) {
-            for (int c = 1; c < 9; c++) {
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
                 ChessPosition currentPosition = new ChessPosition(r, c);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
 
@@ -166,8 +166,31 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        //Must be in check
+        if (!isInCheck(teamColor))
+            return false;
 
-        throw new RuntimeException("Not implemented");
+        //No piece must have valid moves
+
+        //Look for same-colored pieces
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                ChessPosition currentPosition = new ChessPosition(r, c);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+
+                //If there is a same-colored piece, check if it has any legal moves
+                if (currentPiece != null && currentPiece.getTeamColor() == getTeamTurn()) {
+                    Collection<ChessMove> legalMoves = validMoves(currentPosition);
+
+                    if (legalMoves != null && !legalMoves.isEmpty()) {
+                        //There are still legal moves: not checkmate
+                        return false;
+                    }
+                }
+            }
+        }
+        //There are no more legal moves: checkmate
+        return true;
     }
 
     /**
