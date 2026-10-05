@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -10,11 +11,12 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private ChessBoard board;
+    private ChessBoard board = new ChessBoard();
     private TeamColor currentTurnColor;
 
     public ChessGame() {
-
+        board.resetBoard();
+        currentTurnColor = TeamColor.WHITE;
     }
 
     /**
@@ -33,6 +35,20 @@ public class ChessGame {
         currentTurnColor = team;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && currentTurnColor == chessGame.currentTurnColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, currentTurnColor);
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -49,8 +65,24 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        ChessPiece piece = board.getPiece(startPosition);
 
-        throw new RuntimeException("Not implemented");
+        //return null if no piece at startPosition
+        if (piece == null)
+            return null;
+
+        Collection<ChessMove> basicMoves = piece.pieceMoves(board, startPosition);
+
+        //simulate each move to ensure a move doesnt leave someone in check
+        for (ChessMove move : basicMoves) {
+            ChessPosition endPosition = move.getEndPosition();
+            ChessPiece targetPiece = board.getPiece(endPosition);
+
+            //makeMove(move);
+        }
+
+        return legalMoves;
     }
 
     /**
@@ -61,7 +93,21 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
+        if (piece.getTeamColor() == getTeamTurn()){
+            //update piece at new position
+            board.addPiece(endPosition, piece);
+            //delete piece at old position
+            board.addPiece(startPosition, null);
+
+            if (currentTurnColor == TeamColor.WHITE)
+                setTeamTurn(TeamColor.BLACK);
+            else
+                setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
@@ -72,7 +118,29 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
 
-        throw new RuntimeException("Not implemented");
+        //Iterate through every square to find enemy pieces
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                ChessPosition currentPosition = new ChessPosition(r, c);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+
+                if (currentPiece != null && currentPiece.getTeamColor() != teamColor) {
+                    //Iterate through enemy piece moves looking for attacks on king
+                    Collection<ChessMove> enemyMoves = currentPiece.pieceMoves(board, currentPosition);
+
+                    for (ChessMove move : enemyMoves) {
+                        ChessPosition targetPosition = move.getEndPosition();
+                        ChessPiece targetPiece = board.getPiece(targetPosition);
+                        //If there is an attack on the king, they are in check
+                        if (targetPiece != null && targetPiece.getPieceType() == ChessPiece.PieceType.KING && targetPiece.getTeamColor() == teamColor) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        //No attacks on king found
+        return false;
     }
 
     /**
