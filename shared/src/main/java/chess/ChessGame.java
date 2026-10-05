@@ -68,20 +68,28 @@ public class ChessGame {
         Collection<ChessMove> legalMoves = new ArrayList<>();
         ChessPiece piece = board.getPiece(startPosition);
 
-        //return null if no piece at startPosition
+        //Return null if no piece at startPosition
         if (piece == null)
             return null;
 
         Collection<ChessMove> basicMoves = piece.pieceMoves(board, startPosition);
 
-        //simulate each move to ensure a move doesnt leave someone in check
+        //Simulate each move to ensure a move doesnt leave someone in check
         for (ChessMove move : basicMoves) {
             ChessPosition endPosition = move.getEndPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
-            //makeMove(move);
-        }
+            //Simulate move
+            board.addPiece(endPosition, piece);
+            board.addPiece(startPosition, null);
 
+            if (!isInCheck(piece.getTeamColor()))
+                legalMoves.add(move);
+
+            //Undo move
+            board.addPiece(startPosition, piece);
+            board.addPiece(endPosition, targetPiece);
+        }
         return legalMoves;
     }
 
@@ -97,17 +105,25 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
 
-        if (piece.getTeamColor() == getTeamTurn()){
-            //update piece at new position
-            board.addPiece(endPosition, piece);
-            //delete piece at old position
-            board.addPiece(startPosition, null);
+        //Move must be a piece at the starting position and must be the current players color
+        if (piece == null || piece.getTeamColor() != getTeamTurn())
+            throw new InvalidMoveException("Cannot perform move");
 
-            if (currentTurnColor == TeamColor.WHITE)
-                setTeamTurn(TeamColor.BLACK);
-            else
-                setTeamTurn(TeamColor.WHITE);
-        }
+        //Move must be in piece's validMoves()
+        Collection<ChessMove> legalMoves = validMoves(startPosition);
+        if (!legalMoves.contains(move))
+            throw new InvalidMoveException("Illegal move for current piece!");
+
+        //Update piece at new position
+        board.addPiece(endPosition, piece);
+        //Delete piece at old position
+        board.addPiece(startPosition, null);
+
+        //Swap colors
+        if (currentTurnColor == TeamColor.WHITE)
+            setTeamTurn(TeamColor.BLACK);
+        else
+            setTeamTurn(TeamColor.WHITE);
     }
 
     /**
@@ -119,8 +135,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
 
         //Iterate through every square to find enemy pieces
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
                 ChessPosition currentPosition = new ChessPosition(r, c);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
 
