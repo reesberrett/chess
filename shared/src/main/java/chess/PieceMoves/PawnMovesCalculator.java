@@ -5,11 +5,13 @@ import chess.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/*public class PawnMovesCalculator {
+public class PawnMovesCalculator implements MoveCalculator{
 
     @Override
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
+        ChessPiece currentPiece = board.getPiece(myPosition);
+        ChessGame.TeamColor color = currentPiece.getTeamColor();
 
         int r = myPosition.getRow();
         int c = myPosition.getColumn();
@@ -19,7 +21,7 @@ import java.util.Collection;
         int promotionRow = 8;
 
         //Swap sides if black
-        if (getTeamColor() == ChessGame.TeamColor.BLACK) {
+        if (color == ChessGame.TeamColor.BLACK) {
             direction = -1;
             startRow = 7;
             promotionRow = 1;
@@ -31,10 +33,10 @@ import java.util.Collection;
 
         /*
             Moving forward
-        *//*
+        */
 
         if (nextRow >= 1 && nextRow <= 8 && nextPiece == null) {
-            //promotion
+            //Promotion
             if (nextRow == promotionRow) {
                 moves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.KNIGHT));
                 moves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.BISHOP));
@@ -42,11 +44,11 @@ import java.util.Collection;
                 moves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.QUEEN));
             }
 
-            //normal step
+            //Normal step
             else
                 moves.add(new ChessMove(myPosition, nextPosition, null));
 
-            //moving 2 steps forward from start
+            //Moving 2 steps forward from start
             if (r == startRow) {
                 ChessPosition nextTwoPosition = new ChessPosition(r + (2 * direction), c);
                 ChessPiece nextTwoPiece = board.getPiece(nextTwoPosition);
@@ -56,25 +58,24 @@ import java.util.Collection;
             }
         }
 
-
         /*
             Capturing diagonally
-        *//*
+        */
 
         //capture left
         if (nextRow >= 1 && nextRow <= 8 && c - 1 >= 1) {
             ChessPosition leftCapturePos = new ChessPosition(r + direction, c - 1);
             ChessPiece leftCapturePiece = board.getPiece(leftCapturePos);
 
-            if (leftCapturePiece != null && leftCapturePiece.getTeamColor() != getTeamColor()) {
-                //promotion capture
+            if (leftCapturePiece != null && leftCapturePiece.getTeamColor() != color) {
+                //Promotion capture
                 if (nextRow == promotionRow) {
                     moves.add(new ChessMove(myPosition, leftCapturePos, ChessPiece.PieceType.KNIGHT));
                     moves.add(new ChessMove(myPosition, leftCapturePos, ChessPiece.PieceType.BISHOP));
                     moves.add(new ChessMove(myPosition, leftCapturePos, ChessPiece.PieceType.ROOK));
                     moves.add(new ChessMove(myPosition, leftCapturePos, ChessPiece.PieceType.QUEEN));
                 }
-                //normal capture
+                //Normal capture
                 else
                     moves.add(new ChessMove(myPosition, leftCapturePos, null));
             }
@@ -85,21 +86,33 @@ import java.util.Collection;
 
             ChessPosition rightCapturePos = new ChessPosition(r + direction, c + 1);
             ChessPiece rightCapturePiece = board.getPiece(rightCapturePos);
-            if (board.getPiece(rightCapturePos) != null && rightCapturePiece.getTeamColor() != getTeamColor()) {
-                //promotion capture
+            if (board.getPiece(rightCapturePos) != null && rightCapturePiece.getTeamColor() != color) {
+                //Promotion capture
                 if (r == promotionRow) {
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.KNIGHT));
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.BISHOP));
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.ROOK));
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.QUEEN));
                 }
-                //normal capture
+                //Normal capture
                 else
                     moves.add(new ChessMove(myPosition, rightCapturePos, null));
             }
         }
 
-        return moves;
+        /*
+            En Passant
+        */
+        ChessPosition epPosition = board.enPassantPosition;
 
+        if (epPosition != null) {
+            //left en passant
+            if (nextRow == epPosition.getRow() && (c - 1) == epPosition.getColumn())
+                moves.add(new ChessMove(myPosition, epPosition, null));
+            //right enpassant
+            if (nextRow == epPosition.getRow() && (c + 1) == epPosition.getColumn())
+                moves.add(new ChessMove(myPosition, epPosition, null));
+        }
+        return moves;
     }
-}*/
+}

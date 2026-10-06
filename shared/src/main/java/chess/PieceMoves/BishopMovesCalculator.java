@@ -14,7 +14,7 @@ public class BishopMovesCalculator implements MoveCalculator {
         ChessPiece currentPiece = board.getPiece(myPosition);
         ChessGame.TeamColor color = currentPiece.getTeamColor();
 
-        //moving up to the right
+        //Moving up to the right
         int r = myPosition.getRow();
         int c = myPosition.getColumn();
         while (r < 8 && c < 8) {
@@ -35,7 +35,7 @@ public class BishopMovesCalculator implements MoveCalculator {
             }
         }
 
-        //moving up to the left
+        //Moving up to the left
         r = myPosition.getRow();
         c = myPosition.getColumn();
         while (r < 8 && c > 1) {
@@ -56,7 +56,7 @@ public class BishopMovesCalculator implements MoveCalculator {
             }
         }
 
-        //moving down to the left
+        //Moving down to the left
         r = myPosition.getRow();
         c = myPosition.getColumn();
         while (r > 1 && c < 8) {
@@ -77,7 +77,7 @@ public class BishopMovesCalculator implements MoveCalculator {
             }
         }
 
-        //moving down to the right
+        //Moving down to the right
         r = myPosition.getRow();
         c = myPosition.getColumn();
         while (r > 1 && c > 1) {
