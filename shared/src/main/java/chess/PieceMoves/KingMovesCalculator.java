@@ -103,14 +103,14 @@ public class KingMovesCalculator implements MoveCalculator {
         if (c == 5) {
 
             //Get correct color from GameBoard parameters
-            boolean kingMoved = board.whiteKingMoved;
-            boolean rookLeftMoved = board.whiteRookLeftMoved;
-            boolean rookRightMoved = board.whiteRookRightMoved;
+            boolean kingMoved = board.getWhiteKingMoved();
+            boolean rookLeftMoved = board.getWhiteRookLeftMoved();
+            boolean rookRightMoved = board.getWhiteRookRightMoved();
 
             if (color == ChessGame.TeamColor.BLACK) {
-                kingMoved = board.blackKingMoved;
-                rookLeftMoved = board.blackRookLeftMoved;
-                rookRightMoved = board.blackRookRightMoved;
+                kingMoved = board.getBlackKingMoved();
+                rookLeftMoved = board.getBlackRookLeftMoved();
+                rookRightMoved = board.getBlackRookRightMoved();
             }
 
             //King cannot have already moved

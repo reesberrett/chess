@@ -80,7 +80,7 @@ public class ChessPiece {
             case KING -> calculator = new KingMovesCalculator();
             default -> throw new IllegalArgumentException("Invalid type for piece");
         }
-
+        //Calls overloaded function in MoveCalculator
         return calculator.calculateMoves(board, myPosition);
     }
 }

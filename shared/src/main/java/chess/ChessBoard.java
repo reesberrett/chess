@@ -12,16 +12,66 @@ import java.util.Objects;
 public class ChessBoard {
     private ChessPiece[][] layout;
 
-    //Parameters to track castling
-    public boolean whiteKingMoved = false;
-    public boolean blackKingMoved = false;
-    public boolean whiteRookLeftMoved = false;
-    public boolean whiteRookRightMoved = false;
-    public boolean blackRookLeftMoved = false;
-    public boolean blackRookRightMoved = false;
+    //Parameters and getters/setters to track castling
+    private boolean whiteKingMoved = false;
+    private boolean blackKingMoved = false;
+    private boolean whiteRookLeftMoved = false;
+    private boolean whiteRookRightMoved = false;
+    private boolean blackRookLeftMoved = false;
+    private boolean blackRookRightMoved = false;
 
-    //Parameter for en passant
-    public ChessPosition enPassantPosition;
+    public boolean getWhiteKingMoved() {
+        return whiteKingMoved;
+    }
+    public void setWhiteKingMoved(boolean moved) {
+        whiteKingMoved = moved;
+    }
+
+    public boolean getBlackKingMoved() {
+        return blackKingMoved;
+    }
+    public void setBlackKingMoved(boolean moved) {
+        blackKingMoved = moved;
+    }
+
+    public boolean getWhiteRookLeftMoved() {
+        return whiteRookLeftMoved;
+    }
+    public void setWhiteRookLeftMoved(boolean moved) {
+        whiteRookLeftMoved = moved;
+    }
+
+    public boolean getWhiteRookRightMoved() {
+        return whiteRookRightMoved;
+    }
+    public void setWhiteRookRightMoved(boolean moved) {
+        whiteRookRightMoved = moved;
+    }
+
+    public boolean getBlackRookLeftMoved() {
+        return blackRookLeftMoved;
+    }
+    public void setBlackRookLeftMoved(boolean moved) {
+        blackRookLeftMoved = moved;
+    }
+
+    public boolean getBlackRookRightMoved() {
+        return blackRookRightMoved;
+    }
+    public void setBlackRookRightMoved(boolean moved) {
+        blackRookRightMoved = moved;
+    }
+
+    //Parameter and getter/setter for en passant
+    private static ChessPosition enPassantPosition;
+
+    public ChessPosition getEnPassantPosition() {
+        return enPassantPosition;
+    }
+
+    public void setEnPassantPosition(ChessPosition position) {
+        enPassantPosition = position;
+    }
 
     public ChessBoard() {
         this.layout = new ChessPiece[8][8];

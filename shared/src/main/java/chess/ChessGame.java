@@ -80,7 +80,6 @@ public class ChessGame {
             ChessPiece targetPiece = board.getPiece(endPosition);
 
             //possible promotion
-            //ChessPiece promotionPiece = piece;
             if (move.getPromotionPiece() != null)
                 piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
 
@@ -90,7 +89,7 @@ public class ChessGame {
 
             /*
                 EN PASSANT
-             */
+            */
 
             boolean canEnPassant = false;
             ChessPosition enPassantEnemyPosition = null;
@@ -139,7 +138,8 @@ public class ChessGame {
                     legal = false;
 
                 //Check that each square in castling will not put king in check
-                if (legal) {
+                else {
+                    //Check kingside castling spots in check
                     if (endPosition.getColumn() == 7) {
                         //Simulate passing square
                         board.addPiece(new ChessPosition(row, 6), piece);
@@ -161,6 +161,7 @@ public class ChessGame {
                             board.addPiece(new ChessPosition(row, 8), null);
                         }
 
+                    //Check queenside castling spots in check
                     } else if (endPosition.getColumn() == 3) {
                         //Simulate passing square
                         board.addPiece(new ChessPosition(row, 4), piece);
@@ -222,7 +223,6 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
-        //ChessPiece promotionPiece = piece;
 
         //Move must be a piece at the starting position and must be the current players color
         if (piece == null || piece.getTeamColor() != getTeamTurn())
@@ -240,29 +240,29 @@ public class ChessGame {
         //Case for castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             if (piece.getTeamColor() == TeamColor.WHITE)
-                board.whiteKingMoved = true;
+                board.setWhiteKingMoved(true);
             else
-                board.blackKingMoved = true;
+                board.setBlackKingMoved(true);
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 if (startPosition.getColumn() == 1)
-                    board.whiteRookLeftMoved = true;
+                    board.setWhiteRookLeftMoved(true);
                 if (startPosition.getColumn() == 8)
-                    board.whiteRookRightMoved = true;
+                    board.setWhiteRookRightMoved(true);
             } else {
                 if (startPosition.getColumn() == 1)
-                    board.blackRookLeftMoved = true;
+                    board.setBlackRookLeftMoved(true);
                 if (startPosition.getColumn() == 8)
-                    board.blackRookRightMoved = true;
+                    board.setBlackRookRightMoved(true);
             }
         }
 
         //Case for en passant
-        ChessPosition currentEP = board.enPassantPosition;
+        ChessPosition currentEP = board.getEnPassantPosition();
         //Clear en passant position every turn
-        board.enPassantPosition = null;
+        board.setEnPassantPosition(null);
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int startRow = startPosition.getRow();
@@ -270,9 +270,9 @@ public class ChessGame {
 
             //Record possible en passant position if pawn makes 2 step move
             if (startRow == 2 && endRow == 4) {
-                board.enPassantPosition = new ChessPosition(3, startPosition.getColumn());
+                board.setEnPassantPosition(new ChessPosition(3, startPosition.getColumn()));
             } else if (startRow == 7 && endRow == 5) {
-                board.enPassantPosition = new ChessPosition(6, startPosition.getColumn());
+                board.setEnPassantPosition(new ChessPosition(6, startPosition.getColumn()));
             }
         }
 

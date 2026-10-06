@@ -103,7 +103,7 @@ public class PawnMovesCalculator implements MoveCalculator{
         /*
             En Passant
         */
-        ChessPosition epPosition = board.enPassantPosition;
+        ChessPosition epPosition = board.getEnPassantPosition();
 
         if (epPosition != null) {
             //left en passant
