@@ -134,30 +134,50 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
 
-        //Iterate through every square to find enemy pieces
+        ChessPosition kingPosition = null;
+
+        //Find location of king of given color
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                ChessPosition currentPosition = new ChessPosition(r, c);
+                ChessPiece piece = board.getPiece(currentPosition);
+
+                //Save king coordinates
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    kingPosition = currentPosition;
+                    break;
+                }
+            }
+            if (kingPosition != null) break;
+        }
+
+        //Scan the board for enemy pieces
         for (int r = 1; r <= 8; r++) {
             for (int c = 1; c <= 8; c++) {
                 ChessPosition currentPosition = new ChessPosition(r, c);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
 
                 if (currentPiece != null && currentPiece.getTeamColor() != teamColor) {
-                    //Iterate through enemy piece moves looking for attacks on king
+
+                    //Find all possible moves of each enemy piece found
                     Collection<ChessMove> enemyMoves = currentPiece.pieceMoves(board, currentPosition);
 
                     for (ChessMove move : enemyMoves) {
+                        //Check if enemy moves target king
                         ChessPosition targetPosition = move.getEndPosition();
-                        ChessPiece targetPiece = board.getPiece(targetPosition);
-                        //If there is an attack on the king, they are in check
-                        if (targetPiece != null && targetPiece.getPieceType() == ChessPiece.PieceType.KING && targetPiece.getTeamColor() == teamColor) {
+
+                        if (targetPosition.getRow() == kingPosition.getRow() && targetPosition.getColumn() == kingPosition.getColumn()) {
+                            //king is under attack: check
                             return true;
                         }
                     }
                 }
             }
         }
-        //No attacks on king found
+        //king is under no attacks: not check
         return false;
     }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -179,7 +199,7 @@ public class ChessGame {
                 ChessPiece currentPiece = board.getPiece(currentPosition);
 
                 //If there is a same-colored piece, check if it has any legal moves
-                if (currentPiece != null && currentPiece.getTeamColor() == getTeamTurn()) {
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
                     Collection<ChessMove> legalMoves = validMoves(currentPosition);
 
                     if (legalMoves != null && !legalMoves.isEmpty()) {
@@ -206,7 +226,6 @@ public class ChessGame {
             return false;
 
         //No piece must have valid moves
-
         //Look for same-colored pieces
         for (int r = 1; r <= 8; r++) {
             for (int c = 1; c <= 8; c++) {
@@ -214,7 +233,7 @@ public class ChessGame {
                 ChessPiece currentPiece = board.getPiece(currentPosition);
 
                 //If there is a same-colored piece, check if it has any legal moves
-                if (currentPiece != null && currentPiece.getTeamColor() == getTeamTurn()) {
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
                     Collection<ChessMove> legalMoves = validMoves(currentPosition);
 
                     if (legalMoves != null && !legalMoves.isEmpty()) {
