@@ -88,7 +88,7 @@ public class PawnMovesCalculator implements MoveCalculator{
             ChessPiece rightCapturePiece = board.getPiece(rightCapturePos);
             if (board.getPiece(rightCapturePos) != null && rightCapturePiece.getTeamColor() != color) {
                 //Promotion capture
-                if (r == promotionRow) {
+                if (nextRow == promotionRow) {
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.KNIGHT));
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.BISHOP));
                     moves.add(new ChessMove(myPosition, rightCapturePos, ChessPiece.PieceType.ROOK));
