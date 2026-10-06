@@ -89,6 +89,37 @@ public class ChessGame {
             board.addPiece(endPosition, promotionPiece);
             board.addPiece(startPosition, null);
 
+            /*
+                EN PASSANT
+             */
+
+            boolean isEnPassantCapture = false;
+            ChessPosition enPassantEnemyPosition = null;
+            ChessPiece enPassantSavedPiece = null;
+
+            //Use board.enPassantPosition directly to read if this move triggers it
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && endPosition.equals(board.enPassantPosition)) {
+                isEnPassantCapture = true;
+
+                //Get correct capture row based on color
+                int captureRow;
+                if (piece.getTeamColor() == TeamColor.WHITE)
+                    captureRow = 5;
+                else
+                    captureRow = 4;
+
+                enPassantEnemyPosition = new ChessPosition(captureRow, endPosition.getColumn());
+
+                //Save reference to the enemy pawn so we can undo it later
+                enPassantSavedPiece = board.getPiece(enPassantEnemyPosition);
+                //Simulate en passant capture
+                board.addPiece(enPassantEnemyPosition, null);
+            }
+
+            /*
+                CASTLING
+            */
+
             boolean legal = !isInCheck(piece.getTeamColor());
             boolean isCastleKingside = false;
             boolean isCastleQueenside = false;
@@ -154,10 +185,12 @@ public class ChessGame {
                     }
                 }
             }
+
             //Add move to legal moves
             if (legal)
                 legalMoves.add(move);
 
+            //Undo castling simulation
             if (isCastleKingside) {
                 board.addPiece(new ChessPosition(row, 8), board.getPiece(new ChessPosition(row, 6)));
                 board.addPiece(new ChessPosition(row, 6), null);
@@ -166,7 +199,12 @@ public class ChessGame {
                 board.addPiece(new ChessPosition(row, 4), null);
             }
 
-            //Undo move
+            //Undo en passant simulation
+            if (isEnPassantCapture) {
+                board.addPiece(enPassantEnemyPosition, enPassantSavedPiece);
+            }
+
+            //Undo standard move simulation
             board.addPiece(startPosition, piece);
             board.addPiece(endPosition, targetPiece);
         }
@@ -221,6 +259,22 @@ public class ChessGame {
             }
         }
 
+        //Case for en passant
+        ChessPosition currentEP = board.enPassantPosition;
+        board.enPassantPosition = null; // Clear it by default every single turn!
+
+        // If a Pawn just double-steps, record the square it bypassed
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int startRow = startPosition.getRow();
+            int endRow = endPosition.getRow();
+
+            if (startRow == 2 && endRow == 4) { // White double step
+                board.enPassantPosition = new ChessPosition(3, startPosition.getColumn());
+            } else if (startRow == 7 && endRow == 5) { // Black double step
+                board.enPassantPosition = new ChessPosition(6, startPosition.getColumn());
+            }
+        }
+
         //Update piece at new position
         board.addPiece(endPosition, promotionPiece);
         //Delete piece at old position
@@ -246,6 +300,13 @@ public class ChessGame {
                 board.addPiece(rookEnd, board.getPiece(rookStart));
                 board.addPiece(rookStart, null);
             }
+        }
+
+        //En Passant:
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && endPosition.equals(currentEP)) {
+            // Erase the enemy pawn sitting directly behind your landing coordinate
+            int captureRow = (piece.getTeamColor() == TeamColor.WHITE) ? 5 : 4;
+            board.addPiece(new ChessPosition(captureRow, endPosition.getColumn()), null);
         }
 
         //Swap colors

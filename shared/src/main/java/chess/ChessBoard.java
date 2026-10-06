@@ -20,6 +20,9 @@ public class ChessBoard {
     public boolean blackRookLeftMoved = false;
     public boolean blackRookRightMoved = false;
 
+    //Parameter for en passant
+    public ChessPosition enPassantPosition;
+
     public ChessBoard() {
         this.layout = new ChessPiece[8][8];
     }
@@ -51,6 +54,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         ChessPiece[][] newLayout = new ChessPiece[8][8];
+        enPassantPosition = null;
 
         //set up white pieces
         newLayout[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);

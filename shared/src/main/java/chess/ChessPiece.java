@@ -172,8 +172,20 @@ public class ChessPiece {
             }
         }
 
-        return moves;
+        //En Passant
+        ChessPosition epSquare = board.enPassantPosition;
 
+        if (epSquare != null) {
+            //left en passant
+            if (nextRow == epSquare.getRow() && (c - 1) == epSquare.getColumn()) {
+                moves.add(new ChessMove(myPosition, epSquare, null));
+            }
+            //right enpassant
+            if (nextRow == epSquare.getRow() && (c + 1) == epSquare.getColumn()) {
+                moves.add(new ChessMove(myPosition, epSquare, null));
+            }
+        }
+        return moves;
     }
 
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
