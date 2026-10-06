@@ -172,18 +172,16 @@ public class ChessPiece {
             }
         }
 
-        //En Passant
-        ChessPosition epSquare = board.enPassantPosition;
+        //en passant
+        ChessPosition epPosition = board.enPassantPosition;
 
-        if (epSquare != null) {
+        if (epPosition != null) {
             //left en passant
-            if (nextRow == epSquare.getRow() && (c - 1) == epSquare.getColumn()) {
-                moves.add(new ChessMove(myPosition, epSquare, null));
-            }
+            if (nextRow == epPosition.getRow() && (c - 1) == epPosition.getColumn())
+                moves.add(new ChessMove(myPosition, epPosition, null));
             //right enpassant
-            if (nextRow == epSquare.getRow() && (c + 1) == epSquare.getColumn()) {
-                moves.add(new ChessMove(myPosition, epSquare, null));
-            }
+            if (nextRow == epPosition.getRow() && (c + 1) == epPosition.getColumn())
+                moves.add(new ChessMove(myPosition, epPosition, null));
         }
         return moves;
     }
@@ -699,27 +697,33 @@ public class ChessPiece {
         if (c == 5) {
 
             //Get correct color from GameBoard parameters
-            boolean kingMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteKingMoved : board.blackKingMoved;
-            boolean rookLeftMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteRookLeftMoved : board.blackRookLeftMoved;
-            boolean rookRightMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteRookRightMoved : board.blackRookRightMoved;
+            boolean kingMoved = board.whiteKingMoved;
+            boolean rookLeftMoved = board.whiteRookLeftMoved;
+            boolean rookRightMoved = board.whiteRookRightMoved;
+
+            if (getTeamColor() == ChessGame.TeamColor.BLACK) {
+                kingMoved = board.blackKingMoved;
+                rookLeftMoved = board.blackRookLeftMoved;
+                rookRightMoved = board.blackRookRightMoved;
+            }
 
             //King cannot have already moved
             if (!kingMoved) {
                 //Kingside castle: Columns 6 and 7 must be empty
-                ChessPosition f_file = new ChessPosition(r, 6);
-                ChessPosition g_file = new ChessPosition(r, 7);
+                ChessPosition fPosition = new ChessPosition(r, 6);
+                ChessPosition gPosition = new ChessPosition(r, 7);
 
-                if (!rookRightMoved && board.getPiece(f_file) == null && board.getPiece(g_file) == null)
-                    moves.add(new ChessMove(myPosition, g_file, null));
+                if (!rookRightMoved && board.getPiece(fPosition) == null && board.getPiece(gPosition) == null)
+                    moves.add(new ChessMove(myPosition, gPosition, null));
 
 
                 //Queenside castle (Columns 2, 3, and 4 must be empty)
-                ChessPosition d_file = new ChessPosition(r, 4);
-                ChessPosition c_file = new ChessPosition(r, 3);
-                ChessPosition b_file = new ChessPosition(r, 2);
+                ChessPosition dPosition = new ChessPosition(r, 4);
+                ChessPosition cPosition = new ChessPosition(r, 3);
+                ChessPosition bPosition = new ChessPosition(r, 2);
 
-                if (!rookLeftMoved && board.getPiece(d_file) == null && board.getPiece(c_file) == null && board.getPiece(b_file) == null)
-                    moves.add(new ChessMove(myPosition, c_file, null));
+                if (!rookLeftMoved && board.getPiece(dPosition) == null && board.getPiece(cPosition) == null && board.getPiece(bPosition) == null)
+                    moves.add(new ChessMove(myPosition, cPosition, null));
             }
         }
         return moves;

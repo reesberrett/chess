@@ -79,27 +79,26 @@ public class ChessGame {
             ChessPosition endPosition = move.getEndPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
-            //Simulate possible promotion
-            ChessPiece promotionPiece = piece;
+            //possible promotion
+            //ChessPiece promotionPiece = piece;
             if (move.getPromotionPiece() != null)
-                promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
-
+                piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
 
             //Simulate move
-            board.addPiece(endPosition, promotionPiece);
+            board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
 
             /*
                 EN PASSANT
              */
 
-            boolean isEnPassantCapture = false;
+            boolean canEnPassant = false;
             ChessPosition enPassantEnemyPosition = null;
-            ChessPiece enPassantSavedPiece = null;
+            ChessPiece enPassantEnemyPiece = null;
 
             //Use board.enPassantPosition directly to read if this move triggers it
-            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && endPosition.equals(board.enPassantPosition)) {
-                isEnPassantCapture = true;
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                canEnPassant = true;
 
                 //Get correct capture row based on color
                 int captureRow;
@@ -109,9 +108,8 @@ public class ChessGame {
                     captureRow = 4;
 
                 enPassantEnemyPosition = new ChessPosition(captureRow, endPosition.getColumn());
-
                 //Save reference to the enemy pawn so we can undo it later
-                enPassantSavedPiece = board.getPiece(enPassantEnemyPosition);
+                enPassantEnemyPiece = board.getPiece(enPassantEnemyPosition);
                 //Simulate en passant capture
                 board.addPiece(enPassantEnemyPosition, null);
             }
@@ -121,8 +119,8 @@ public class ChessGame {
             */
 
             boolean legal = !isInCheck(piece.getTeamColor());
-            boolean isCastleKingside = false;
-            boolean isCastleQueenside = false;
+            boolean canCastleKingside = false;
+            boolean canCastleQueenside = false;
             int row = endPosition.getRow();
 
             if (piece.getPieceType() == ChessPiece.PieceType.KING && startPosition.getColumn() == 5) {
@@ -133,13 +131,12 @@ public class ChessGame {
                 boolean startedInCheck = isInCheck(piece.getTeamColor());
 
                 //Undo simulated move
-                board.addPiece(endPosition, promotionPiece);
+                board.addPiece(endPosition, piece);
                 board.addPiece(startPosition, null);
 
                 //Cannot castle out of check
-                if (startedInCheck) {
+                if (startedInCheck)
                     legal = false;
-                }
 
                 //Check that each square in castling will not put king in check
                 if (legal) {
@@ -158,7 +155,8 @@ public class ChessGame {
 
                         //If no checks, castle
                         if (legal) {
-                            isCastleKingside = true;
+                            canCastleKingside = true;
+                            //Move the rook
                             board.addPiece(new ChessPosition(row, 6), board.getPiece(new ChessPosition(row, 8)));
                             board.addPiece(new ChessPosition(row, 8), null);
                         }
@@ -178,7 +176,7 @@ public class ChessGame {
 
                         //If no checks, castle
                         if (legal) {
-                            isCastleQueenside = true;
+                            canCastleQueenside = true;
                             board.addPiece(new ChessPosition(row, 4), board.getPiece(new ChessPosition(row, 1)));
                             board.addPiece(new ChessPosition(row, 1), null);
                         }
@@ -191,18 +189,20 @@ public class ChessGame {
                 legalMoves.add(move);
 
             //Undo castling simulation
-            if (isCastleKingside) {
+            if (canCastleKingside) {
+                //Undo  rook simulation
                 board.addPiece(new ChessPosition(row, 8), board.getPiece(new ChessPosition(row, 6)));
                 board.addPiece(new ChessPosition(row, 6), null);
-            } else if (isCastleQueenside) {
+            } else if (canCastleQueenside) {
+                //Undo rook simulation
                 board.addPiece(new ChessPosition(row, 1), board.getPiece(new ChessPosition(row, 4)));
                 board.addPiece(new ChessPosition(row, 4), null);
             }
 
             //Undo en passant simulation
-            if (isEnPassantCapture) {
-                board.addPiece(enPassantEnemyPosition, enPassantSavedPiece);
-            }
+            if (canEnPassant)
+                //Undo enemy pawn simulation
+                board.addPiece(enPassantEnemyPosition, enPassantEnemyPiece);
 
             //Undo standard move simulation
             board.addPiece(startPosition, piece);
@@ -222,7 +222,7 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
-        ChessPiece promotionPiece = piece;
+        //ChessPiece promotionPiece = piece;
 
         //Move must be a piece at the starting position and must be the current players color
         if (piece == null || piece.getTeamColor() != getTeamTurn())
@@ -235,7 +235,7 @@ public class ChessGame {
 
         //Case for promotions
         if (move.getPromotionPiece() != null)
-            promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
 
         //Case for castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
@@ -261,22 +261,23 @@ public class ChessGame {
 
         //Case for en passant
         ChessPosition currentEP = board.enPassantPosition;
-        board.enPassantPosition = null; // Clear it by default every single turn!
+        //Clear en passant position every turn
+        board.enPassantPosition = null;
 
-        // If a Pawn just double-steps, record the square it bypassed
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int startRow = startPosition.getRow();
             int endRow = endPosition.getRow();
 
-            if (startRow == 2 && endRow == 4) { // White double step
+            //Record possible en passant position if pawn makes 2 step move
+            if (startRow == 2 && endRow == 4) {
                 board.enPassantPosition = new ChessPosition(3, startPosition.getColumn());
-            } else if (startRow == 7 && endRow == 5) { // Black double step
+            } else if (startRow == 7 && endRow == 5) {
                 board.enPassantPosition = new ChessPosition(6, startPosition.getColumn());
             }
         }
 
         //Update piece at new position
-        board.addPiece(endPosition, promotionPiece);
+        board.addPiece(endPosition, piece);
         //Delete piece at old position
         board.addPiece(startPosition, null);
 
@@ -286,14 +287,14 @@ public class ChessGame {
             int startCol = startPosition.getColumn();
             int endCol = endPosition.getColumn();
 
-            // Kingside Castle: King moved 2 spaces right (5 to 7)
+            //Kingside Castle: King moved 2 spaces right (5 to 7)
             if (startCol == 5 && endCol == 7) {
                 ChessPosition rookStart = new ChessPosition(row, 8);
                 ChessPosition rookEnd = new ChessPosition(row, 6);
                 board.addPiece(rookEnd, board.getPiece(rookStart));
                 board.addPiece(rookStart, null);
             }
-            // Queenside Castle: King moved 2 spaces left (5 to 3)
+            //Queenside Castle: King moved 2 spaces left (5 to 3)
             else if (startCol == 5 && endCol == 3) {
                 ChessPosition rookStart = new ChessPosition(row, 1);
                 ChessPosition rookEnd = new ChessPosition(row, 4);
@@ -304,7 +305,7 @@ public class ChessGame {
 
         //En Passant:
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN && endPosition.equals(currentEP)) {
-            // Erase the enemy pawn sitting directly behind your landing coordinate
+            //Delete the enemy pawn sitting directly behind your landing coordinate
             int captureRow = (piece.getTeamColor() == TeamColor.WHITE) ? 5 : 4;
             board.addPiece(new ChessPosition(captureRow, endPosition.getColumn()), null);
         }
