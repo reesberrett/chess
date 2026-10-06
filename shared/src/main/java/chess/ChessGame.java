@@ -14,6 +14,7 @@ public class ChessGame {
     private ChessBoard board = new ChessBoard();
     private TeamColor currentTurnColor;
 
+
     public ChessGame() {
         board.resetBoard();
         currentTurnColor = TeamColor.WHITE;
@@ -79,8 +80,13 @@ public class ChessGame {
             ChessPosition endPosition = move.getEndPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
+            ChessPiece promotionPiece = piece;
+            if (move.getPromotionPiece() != null)
+                promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+
+
             //Simulate move
-            board.addPiece(endPosition, piece);
+            board.addPiece(endPosition, promotionPiece);
             board.addPiece(startPosition, null);
 
             if (!isInCheck(piece.getTeamColor()))
@@ -104,6 +110,7 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
+        ChessPiece promotionPiece = piece;
 
         //Move must be a piece at the starting position and must be the current players color
         if (piece == null || piece.getTeamColor() != getTeamTurn())
@@ -114,8 +121,13 @@ public class ChessGame {
         if (!legalMoves.contains(move))
             throw new InvalidMoveException("Illegal move for current piece!");
 
+        if (move.getPromotionPiece() != null) {
+            promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+
+
         //Update piece at new position
-        board.addPiece(endPosition, piece);
+        board.addPiece(endPosition, promotionPiece);
         //Delete piece at old position
         board.addPiece(startPosition, null);
 
@@ -148,7 +160,9 @@ public class ChessGame {
                     break;
                 }
             }
-            if (kingPosition != null) break;
+            //Break out of all loops (this one got me for a while lol)
+            if (kingPosition != null)
+                break;
         }
 
         //Scan the board for enemy pieces

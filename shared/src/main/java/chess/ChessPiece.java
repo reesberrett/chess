@@ -160,7 +160,7 @@ public class ChessPiece {
             ChessPiece rightCapturePiece = board.getPiece(rightCapturePos);
             if (board.getPiece(rightCapturePos) != null && rightCapturePiece.getTeamColor() != getTeamColor()) {
                 //promotion capture
-                if (r == promotionRow) {
+                if (nextRow == promotionRow) {
                     moves.add(new ChessMove(myPosition, rightCapturePos, PieceType.KNIGHT));
                     moves.add(new ChessMove(myPosition, rightCapturePos, PieceType.BISHOP));
                     moves.add(new ChessMove(myPosition, rightCapturePos, PieceType.ROOK));
