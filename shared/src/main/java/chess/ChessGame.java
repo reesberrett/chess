@@ -201,8 +201,31 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        //Cannot be in check
+        if (isInCheck(teamColor))
+            return false;
 
-        throw new RuntimeException("Not implemented");
+        //No piece must have valid moves
+
+        //Look for same-colored pieces
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                ChessPosition currentPosition = new ChessPosition(r, c);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+
+                //If there is a same-colored piece, check if it has any legal moves
+                if (currentPiece != null && currentPiece.getTeamColor() == getTeamTurn()) {
+                    Collection<ChessMove> legalMoves = validMoves(currentPosition);
+
+                    if (legalMoves != null && !legalMoves.isEmpty()) {
+                        //There are still legal moves: not stalemate
+                        return false;
+                    }
+                }
+            }
+        }
+        //There are no more legal moves: stalemate
+        return true;
     }
 
     /**
