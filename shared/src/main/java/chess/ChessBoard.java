@@ -12,6 +12,14 @@ import java.util.Objects;
 public class ChessBoard {
     private ChessPiece[][] layout;
 
+    //Parameters to track castling
+    public boolean whiteKingMoved = false;
+    public boolean blackKingMoved = false;
+    public boolean whiteRookLeftMoved = false;
+    public boolean whiteRookRightMoved = false;
+    public boolean blackRookLeftMoved = false;
+    public boolean blackRookRightMoved = false;
+
     public ChessBoard() {
         this.layout = new ChessPiece[8][8];
     }

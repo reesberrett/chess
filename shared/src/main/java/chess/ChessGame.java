@@ -14,7 +14,6 @@ public class ChessGame {
     private ChessBoard board = new ChessBoard();
     private TeamColor currentTurnColor;
 
-
     public ChessGame() {
         board.resetBoard();
         currentTurnColor = TeamColor.WHITE;
@@ -80,6 +79,7 @@ public class ChessGame {
             ChessPosition endPosition = move.getEndPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
+            //Simulate possible promotion
             ChessPiece promotionPiece = piece;
             if (move.getPromotionPiece() != null)
                 promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
@@ -89,8 +89,82 @@ public class ChessGame {
             board.addPiece(endPosition, promotionPiece);
             board.addPiece(startPosition, null);
 
-            if (!isInCheck(piece.getTeamColor()))
+            boolean legal = !isInCheck(piece.getTeamColor());
+            boolean isCastleKingside = false;
+            boolean isCastleQueenside = false;
+            int row = endPosition.getRow();
+
+            if (piece.getPieceType() == ChessPiece.PieceType.KING && startPosition.getColumn() == 5) {
+
+                //Check to see if king was under attack before moving
+                board.addPiece(startPosition, piece);
+                board.addPiece(endPosition, targetPiece);
+                boolean startedInCheck = isInCheck(piece.getTeamColor());
+
+                //Undo simulated move
+                board.addPiece(endPosition, promotionPiece);
+                board.addPiece(startPosition, null);
+
+                //Cannot castle out of check
+                if (startedInCheck) {
+                    legal = false;
+                }
+
+                //Check that each square in castling will not put king in check
+                if (legal) {
+                    if (endPosition.getColumn() == 7) {
+                        //Simulate passing square
+                        board.addPiece(new ChessPosition(row, 6), piece);
+                        board.addPiece(endPosition, null);
+
+                        //Cannot castle into check
+                        if (isInCheck(piece.getTeamColor()))
+                            legal = false;
+
+                        //Undo simulated move
+                        board.addPiece(endPosition, piece);
+                        board.addPiece(new ChessPosition(row, 6), null);
+
+                        //If no checks, castle
+                        if (legal) {
+                            isCastleKingside = true;
+                            board.addPiece(new ChessPosition(row, 6), board.getPiece(new ChessPosition(row, 8)));
+                            board.addPiece(new ChessPosition(row, 8), null);
+                        }
+
+                    } else if (endPosition.getColumn() == 3) {
+                        //Simulate passing square
+                        board.addPiece(new ChessPosition(row, 4), piece);
+                        board.addPiece(endPosition, null);
+
+                        //Cannot castle into check
+                        if (isInCheck(piece.getTeamColor()))
+                            legal = false;
+
+                        //Undo simulated move
+                        board.addPiece(endPosition, piece);
+                        board.addPiece(new ChessPosition(row, 4), null);
+
+                        //If no checks, castle
+                        if (legal) {
+                            isCastleQueenside = true;
+                            board.addPiece(new ChessPosition(row, 4), board.getPiece(new ChessPosition(row, 1)));
+                            board.addPiece(new ChessPosition(row, 1), null);
+                        }
+                    }
+                }
+            }
+            //Add move to legal moves
+            if (legal)
                 legalMoves.add(move);
+
+            if (isCastleKingside) {
+                board.addPiece(new ChessPosition(row, 8), board.getPiece(new ChessPosition(row, 6)));
+                board.addPiece(new ChessPosition(row, 6), null);
+            } else if (isCastleQueenside) {
+                board.addPiece(new ChessPosition(row, 1), board.getPiece(new ChessPosition(row, 4)));
+                board.addPiece(new ChessPosition(row, 4), null);
+            }
 
             //Undo move
             board.addPiece(startPosition, piece);
@@ -121,15 +195,58 @@ public class ChessGame {
         if (!legalMoves.contains(move))
             throw new InvalidMoveException("Illegal move for current piece!");
 
-        if (move.getPromotionPiece() != null) {
+        //Case for promotions
+        if (move.getPromotionPiece() != null)
             promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+
+        //Case for castling
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (piece.getTeamColor() == TeamColor.WHITE)
+                board.whiteKingMoved = true;
+            else
+                board.blackKingMoved = true;
         }
 
+        if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                if (startPosition.getColumn() == 1)
+                    board.whiteRookLeftMoved = true;
+                if (startPosition.getColumn() == 8)
+                    board.whiteRookRightMoved = true;
+            } else {
+                if (startPosition.getColumn() == 1)
+                    board.blackRookLeftMoved = true;
+                if (startPosition.getColumn() == 8)
+                    board.blackRookRightMoved = true;
+            }
+        }
 
         //Update piece at new position
         board.addPiece(endPosition, promotionPiece);
         //Delete piece at old position
         board.addPiece(startPosition, null);
+
+        //Castling: moving rook in addition to king
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            int row = endPosition.getRow();
+            int startCol = startPosition.getColumn();
+            int endCol = endPosition.getColumn();
+
+            // Kingside Castle: King moved 2 spaces right (5 to 7)
+            if (startCol == 5 && endCol == 7) {
+                ChessPosition rookStart = new ChessPosition(row, 8);
+                ChessPosition rookEnd = new ChessPosition(row, 6);
+                board.addPiece(rookEnd, board.getPiece(rookStart));
+                board.addPiece(rookStart, null);
+            }
+            // Queenside Castle: King moved 2 spaces left (5 to 3)
+            else if (startCol == 5 && endCol == 3) {
+                ChessPosition rookStart = new ChessPosition(row, 1);
+                ChessPosition rookEnd = new ChessPosition(row, 4);
+                board.addPiece(rookEnd, board.getPiece(rookStart));
+                board.addPiece(rookStart, null);
+            }
+        }
 
         //Swap colors
         if (currentTurnColor == TeamColor.WHITE)

@@ -683,6 +683,33 @@ public class ChessPiece {
                 moves.add(new ChessMove(myPosition, currentPosition, null));
         }
 
+        //Castling
+        if (c == 5) {
+
+            //Get correct color from GameBoard parameters
+            boolean kingMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteKingMoved : board.blackKingMoved;
+            boolean rookLeftMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteRookLeftMoved : board.blackRookLeftMoved;
+            boolean rookRightMoved = (getTeamColor() == ChessGame.TeamColor.WHITE) ? board.whiteRookRightMoved : board.blackRookRightMoved;
+
+            //King cannot have already moved
+            if (!kingMoved) {
+                //Kingside castle: Columns 6 and 7 must be empty
+                ChessPosition f_file = new ChessPosition(r, 6);
+                ChessPosition g_file = new ChessPosition(r, 7);
+
+                if (!rookRightMoved && board.getPiece(f_file) == null && board.getPiece(g_file) == null)
+                    moves.add(new ChessMove(myPosition, g_file, null));
+
+
+                //Queenside castle (Columns 2, 3, and 4 must be empty)
+                ChessPosition d_file = new ChessPosition(r, 4);
+                ChessPosition c_file = new ChessPosition(r, 3);
+                ChessPosition b_file = new ChessPosition(r, 2);
+
+                if (!rookLeftMoved && board.getPiece(d_file) == null && board.getPiece(c_file) == null && board.getPiece(b_file) == null)
+                    moves.add(new ChessMove(myPosition, c_file, null));
+            }
+        }
         return moves;
     }
 }
