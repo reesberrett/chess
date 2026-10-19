@@ -58,9 +58,7 @@ public class ChessBoard {
     public boolean getBlackRookRightMoved() {
         return blackRookRightMoved;
     }
-    public void setBlackRookRightMoved(boolean moved) {
-        blackRookRightMoved = moved;
-    }
+    public void setBlackRookRightMoved(boolean moved) { blackRookRightMoved = moved; }
 
     //Parameter and getter/setter for en passant
     private static ChessPosition enPassantPosition;
@@ -68,8 +66,7 @@ public class ChessBoard {
     public ChessPosition getEnPassantPosition() {
         return enPassantPosition;
     }
-
-    public void setEnPassantPosition(ChessPosition position) {
+    public static void setEnPassantPosition(ChessPosition position) {
         enPassantPosition = position;
     }
 
@@ -104,7 +101,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         ChessPiece[][] newLayout = new ChessPiece[8][8];
-        enPassantPosition = null;
+        setEnPassantPosition(null);
 
         //set up white pieces
         newLayout[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);

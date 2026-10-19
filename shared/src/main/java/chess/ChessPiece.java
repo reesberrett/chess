@@ -2,7 +2,6 @@ package chess;
 
 import chess.PieceMoves.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -16,7 +15,7 @@ public class ChessPiece {
     private final PieceType type;
     private final ChessGame.TeamColor color;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.type = type;
         this.color = pieceColor;
     }
@@ -50,9 +49,7 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
-    public ChessGame.TeamColor getTeamColor() {
-        return color;
-    }
+    public ChessGame.TeamColor getTeamColor() { return color; }
 
     /**
      * @return which type of chess piece this piece is
@@ -71,7 +68,7 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         MoveCalculator calculator;
 
-        switch (getPieceType()) {
+        switch(type) {
             case PAWN -> calculator = new PawnMovesCalculator();
             case KNIGHT -> calculator = new KnightMovesCalculator();
             case BISHOP -> calculator = new BishopMovesCalculator();

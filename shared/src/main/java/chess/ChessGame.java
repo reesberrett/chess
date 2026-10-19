@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -70,18 +71,18 @@ public class ChessGame {
 
         //Return null if no piece at startPosition
         if (piece == null)
-            return null;
+            return Collections.emptyList();
 
         Collection<ChessMove> basicMoves = piece.pieceMoves(board, startPosition);
 
         //Simulate each move to ensure a move doesnt leave someone in check
         for (ChessMove move : basicMoves) {
-            ChessPosition endPosition = move.getEndPosition();
+            ChessPosition endPosition = move.endPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
             //possible promotion
-            if (move.getPromotionPiece() != null)
-                piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+            if (move.promotionPiece() != null)
+                piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
 
             //Simulate move
             board.addPiece(endPosition, piece);
@@ -220,9 +221,9 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        ChessPiece piece = board.getPiece(move.getStartPosition());
-        ChessPosition startPosition = move.getStartPosition();
-        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = board.getPiece(move.startPosition());
+        ChessPosition startPosition = move.startPosition();
+        ChessPosition endPosition = move.endPosition();
 
         //Move must be a piece at the starting position and must be the current players color
         if (piece == null || piece.getTeamColor() != getTeamTurn())
@@ -234,8 +235,8 @@ public class ChessGame {
             throw new InvalidMoveException("Illegal move for current piece!");
 
         //Case for promotions
-        if (move.getPromotionPiece() != null)
-            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        if (move.promotionPiece() != null)
+            piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
 
         //Case for castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
@@ -262,7 +263,8 @@ public class ChessGame {
         //Case for en passant
         ChessPosition currentEP = board.getEnPassantPosition();
         //Clear en passant position every turn
-        board.setEnPassantPosition(null);
+        ChessBoard.setEnPassantPosition(null);
+        //why does chessboard instead of board work here?
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int startRow = startPosition.getRow();
@@ -270,9 +272,9 @@ public class ChessGame {
 
             //Record possible en passant position if pawn makes 2 step move
             if (startRow == 2 && endRow == 4) {
-                board.setEnPassantPosition(new ChessPosition(3, startPosition.getColumn()));
+                ChessBoard.setEnPassantPosition(new ChessPosition(3, startPosition.getColumn()));
             } else if (startRow == 7 && endRow == 5) {
-                board.setEnPassantPosition(new ChessPosition(6, startPosition.getColumn()));
+                ChessBoard.setEnPassantPosition(new ChessPosition(6, startPosition.getColumn()));
             }
         }
 
@@ -306,8 +308,10 @@ public class ChessGame {
         //En Passant:
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN && endPosition.equals(currentEP)) {
             //Delete the enemy pawn sitting directly behind your landing coordinate
-            int captureRow = (piece.getTeamColor() == TeamColor.WHITE) ? 5 : 4;
-            board.addPiece(new ChessPosition(captureRow, endPosition.getColumn()), null);
+            if (piece.getTeamColor() == TeamColor.WHITE)
+                board.addPiece(new ChessPosition(5, endPosition.getColumn()), null);
+            else
+                board.addPiece(new ChessPosition(4, endPosition.getColumn()), null);
         }
 
         //Swap colors
@@ -357,7 +361,7 @@ public class ChessGame {
 
                     for (ChessMove move : enemyMoves) {
                         //Check if enemy moves target king
-                        ChessPosition targetPosition = move.getEndPosition();
+                        ChessPosition targetPosition = move.endPosition();
 
                         if (targetPosition.getRow() == kingPosition.getRow() && targetPosition.getColumn() == kingPosition.getColumn()) {
                             //king is under attack: check

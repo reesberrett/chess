@@ -132,6 +132,7 @@ public class KingMovesCalculator implements MoveCalculator {
                     moves.add(new ChessMove(myPosition, cPosition, null));
             }
         }
+
         return moves;
     }
 }
