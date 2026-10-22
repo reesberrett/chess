@@ -1,4 +1,4 @@
 package service;
 
-public record LoginRequest(String user, String pass){
+public record LoginRequest(String username, String pass){
 }
