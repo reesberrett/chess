@@ -1,5 +1,5 @@
 package model;
 import chess.*;
 
-public record GameData(int gameID, ChessGame game) {
+public record GameData(int gameID, String gameName, ChessGame game) {
 }
