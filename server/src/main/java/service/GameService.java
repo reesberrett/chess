@@ -47,7 +47,7 @@ public class GameService {
     public void joinGame(String token, JoinGameRequest request) throws ServiceException, DataAccessException{
         AuthData auth = verify(token);
         //if requests, colors, or the game does not exist, throw exception
-        if (request == null || request.color() == null)
+        if (request == null || request.playerColor() == null)
             throw new BadRequestException("Error: bad request");
 
         GameData game = gameDAO.getGame((request.gameID()));
@@ -58,21 +58,27 @@ public class GameService {
         String newBlack = game.blackUsername();
 
         //if request color is already taken, throw exception. If not, add username of request to AuthData
-        if (request.color() == ChessGame.TeamColor.WHITE){
-            if (newWhite != null)
-                throw new AlreadyTakenException("Error: already taken");
-            newWhite = auth.username();
+        String color = request.playerColor().toUpperCase();
+        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+            throw new BadRequestException("Error: bad request");
         }
-        else if (request.color() == ChessGame.TeamColor.BLACK){
-            if (newBlack != null)
-                throw new AlreadyTakenException("Error: already take");
+
+        if (color.equals("WHITE")) {
+            if (game.whiteUsername() != null) {
+                throw new AlreadyTakenException("Error: already taken");
+            }
+            newWhite = auth.username();
+        } else if (color.equals("BLACK")) {
+            if (game.blackUsername() != null) {
+                throw new AlreadyTakenException("Error: already taken");
+            }
             newBlack = auth.username();
         }
         else
             throw new BadRequestException("Error: bad request");
 
         //update game to include new usernames
-        GameData updatedGame = new GameData(game.gameID(), game.gameName(), game.game(), newWhite, newBlack);
+        GameData updatedGame = new GameData(game.gameID(), newWhite, newBlack, game.gameName(), game.game());
         gameDAO.updateGame(updatedGame);
     }
 }

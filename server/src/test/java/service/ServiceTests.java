@@ -28,7 +28,7 @@ public class ServiceTests {
     @Test
     public void registerSuccess() throws Exception {
         var result = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
-        assertNotNull(result.token());
+        assertNotNull(result.authToken());
         assertEquals("user1", result.username());
     }
 
@@ -44,7 +44,7 @@ public class ServiceTests {
     public void loginSuccess() throws Exception {
         userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
         var result = userService.login(new LoginRequest("user1", "pass"));
-        assertNotNull(result.token());
+        assertNotNull(result.authToken());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ServiceTests {
     @Test
     public void logoutSuccess() throws Exception {
         var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
-        assertDoesNotThrow(() -> userService.logout(auth.token()));
+        assertDoesNotThrow(() -> userService.logout(auth.authToken()));
     }
 
     @Test
@@ -69,7 +69,7 @@ public class ServiceTests {
     @Test
     public void createGameSuccess() throws Exception {
         var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
-        var result = gameService.createGame(auth.token(), new CreateGameRequest("Match1"));
+        var result = gameService.createGame(auth.authToken(), new CreateGameRequest("Match1"));
         assertTrue(result.containsKey("gameID"));
     }
 
@@ -83,9 +83,9 @@ public class ServiceTests {
     @Test
     public void joinGameSuccess() throws Exception {
         var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
-        var game = gameService.createGame(auth.token(), new CreateGameRequest("Match1"));
+        var game = gameService.createGame(auth.authToken(), new CreateGameRequest("Match1"));
         assertDoesNotThrow(() ->
-                gameService.joinGame(auth.token(), new JoinGameRequest(ChessGame.TeamColor.WHITE, game.get("gameID")))
+                gameService.joinGame(auth.authToken(), new JoinGameRequest("WHITE", game.get("gameID")))
         );
     }
 
@@ -93,20 +93,20 @@ public class ServiceTests {
     public void joinGameAlreadyTaken() throws Exception {
         var auth1 = userService.register(new RegisterRequest("user1", "pass", "email1@test.com"));
         var auth2 = userService.register(new RegisterRequest("user2", "pass", "email2@test.com"));
-        var game = gameService.createGame(auth1.token(), new CreateGameRequest("Match1"));
-        gameService.joinGame(auth1.token(), new JoinGameRequest(ChessGame.TeamColor.WHITE, game.get("gameID")));
+        var game = gameService.createGame(auth1.authToken(), new CreateGameRequest("Match1"));
+        gameService.joinGame(auth1.authToken(), new JoinGameRequest("WHITE", game.get("gameID")));
 
         assertThrows(AlreadyTakenException.class, () ->
-                gameService.joinGame(auth2.token(), new JoinGameRequest(ChessGame.TeamColor.WHITE, game.get("gameID")))
+                gameService.joinGame(auth2.authToken(), new JoinGameRequest("WHITE", game.get("gameID")))
         );
     }
 
     @Test
     public void clearTest() throws Exception {
         var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
-        gameService.createGame(auth.token(), new CreateGameRequest("Match1"));
+        gameService.createGame(auth.authToken(), new CreateGameRequest("Match1"));
         clearService.clear();
 
-        assertThrows(UnauthorizedException.class, () -> gameService.listGames(auth.token()));
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames(auth.authToken()));
     }
 }

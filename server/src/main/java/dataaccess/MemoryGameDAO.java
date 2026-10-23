@@ -4,16 +4,18 @@ import model.*;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class MemoryGameDAO implements GameDAO{
-    private final Map<Integer, GameData> games = new HashMap<>();
+    private final Map<Integer, GameData> games = new LinkedHashMap<>();
     private int nextID = 1;
 
     @Override
     public int createGame(String gameName){
-        int gameID = nextID + 1;
-        GameData game = new GameData(gameID, gameName, new ChessGame(), null, null);
+        //assign id to game and increment it (this bug got me for a while lol)
+        int gameID = nextID;
+        nextID++;
+        GameData game = new GameData(gameID, null, null, gameName, new ChessGame());
         games.put(gameID, game);
         return gameID;
     }
@@ -25,7 +27,7 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public Collection<GameData> listGames(){
-        return games.values();
+        return new java.util.ArrayList<>(games.values());
     }
 
     @Override
@@ -39,7 +41,7 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void clear(){
+    public synchronized void clear(){
         games.clear();
         nextID = 1;
     }

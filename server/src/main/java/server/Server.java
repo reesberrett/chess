@@ -3,6 +3,7 @@ package server;
 import io.javalin.*;
 import io.javalin.http.Context;
 import dataaccess.*;
+import io.javalin.http.staticfiles.Location;
 import service.*;
 import java.util.Map;
 
@@ -17,7 +18,9 @@ public class Server {
     private final Gson gson = new Gson();
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalin = Javalin.create(config -> {
+            //config.staticFiles.add("/web", Location.CLASSPATH);
+        });
 
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
@@ -51,52 +54,64 @@ public class Server {
 
     private void handleClear(Context c) throws Exception{
         clearService.clear();
-        c.status(200).json(Map.of());
-    }
+        c.status(200).result("{}").contentType("application/json");    }
 
-    private void handleRegister(Context c) throws Exception{
+    private void handleRegister(Context c) throws Exception {
         var request = gson.fromJson(c.body(), RegisterRequest.class);
         var result = userService.register(request);
-        c.status(200).json(result);
+        c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
-    private void handleLogin(Context c) throws Exception{
+    private void handleLogin(Context c) throws Exception {
         var request = gson.fromJson(c.body(), LoginRequest.class);
         var result = userService.login(request);
-        c.status(200).json(result);
+        c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
     private void handleLogout(Context c) throws Exception{
-        String token = c.header("authorization");
+        String token = c.header("Authorization"); // HTTP headers are case-insensitive, but check for null
+        if (token == null)
+            token = c.header("authorization");
+
         userService.logout(token);
-        c.status(200).json(Map.of());
+        c.status(200).result("{}").contentType("application/json");
     }
 
-    private void handleListGames(Context c) throws Exception{
+    private void handleListGames(Context c) throws Exception {
         String token = c.header("authorization");
+        if (token == null)
+            token = c.header("Authorization");
+
         var result = gameService.listGames(token);
-        c.status(200).json(result);
+        c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
     private void handleCreateGame(Context c) throws Exception{
         String token = c.header("authorization");
         var request = gson.fromJson(c.body(), CreateGameRequest.class);
         var result = gameService.createGame(token, request);
-        c.status(200).json(result);
+        c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
     private void handleJoinGame(Context c) throws Exception{
         String token = c.header("authorization");
+        if (token == null)
+            token = c.header("Authorization");
+
         var request = gson.fromJson(c.body(), JoinGameRequest.class);
         gameService.joinGame(token, request);
-        c.status(200).json(Map.of());
+        c.status(200).result("{}").contentType("application/json");
     }
 
     private void handleServiceException(ServiceException e, Context c) {
-        c.status(e.getStatusCode()).json(Map.of("message", e.getMessage()));
+        String msg = e.getMessage();
+        if (msg == null || !msg.startsWith("Error:")) {
+            msg = "Error: " + (msg == null ? "unknown" : msg);
+        }
+        c.status(e.getStatusCode()).result(gson.toJson(Map.of("message", msg)));
     }
 
     private void handleGeneralException(Exception e, Context c) {
-        c.status(500).json(Map.of("message", "Error: " + e.getMessage()));
+        c.status(500).result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
     }
 }

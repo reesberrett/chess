@@ -8,7 +8,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
     @Override
     public void createAuth(AuthData auth){
-        tokens.put(auth.token(), auth);
+        tokens.put(auth.authToken(), auth);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void clear(){
+    public synchronized void clear(){
         tokens.clear();
     }
 

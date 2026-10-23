@@ -22,7 +22,7 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public void clear(){
+    public synchronized void clear(){
         users.clear();
     }
 }
