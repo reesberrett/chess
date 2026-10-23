@@ -77,12 +77,12 @@ public class ChessGame {
 
         //Simulate each move to ensure a move doesnt leave someone in check
         for (ChessMove move : basicMoves) {
-            ChessPosition endPosition = move.getEndPosition();
+            ChessPosition endPosition = move.endPosition();
             ChessPiece targetPiece = board.getPiece(endPosition);
 
             //possible promotion
-            if (move.getPromotionPiece() != null)
-                piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+            if (move.promotionPiece() != null)
+                piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
 
             //Simulate move
             board.addPiece(endPosition, piece);
@@ -221,9 +221,9 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        ChessPiece piece = board.getPiece(move.getStartPosition());
-        ChessPosition startPosition = move.getStartPosition();
-        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = board.getPiece(move.startPosition());
+        ChessPosition startPosition = move.startPosition();
+        ChessPosition endPosition = move.endPosition();
 
         //Move must be a piece at the starting position and must be the current players color
         if (piece == null || piece.getTeamColor() != getTeamTurn())
@@ -235,8 +235,8 @@ public class ChessGame {
             throw new InvalidMoveException("Illegal move for current piece!");
 
         //Case for promotions
-        if (move.getPromotionPiece() != null)
-            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        if (move.promotionPiece() != null)
+            piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
 
         //Case for castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
@@ -361,7 +361,7 @@ public class ChessGame {
 
                     for (ChessMove move : enemyMoves) {
                         //Check if enemy moves target king
-                        ChessPosition targetPosition = move.getEndPosition();
+                        ChessPosition targetPosition = move.endPosition();
 
                         if (targetPosition.getRow() == kingPosition.getRow() && targetPosition.getColumn() == kingPosition.getColumn()) {
                             //king is under attack: check
