@@ -33,7 +33,7 @@ public class GameService {
         return new ListGamesResult(gameDAO.listGames());
     }
 
-    public Map<String, Integer> createGame(String token, JoinGameRequest request) throws ServiceException, DataAccessException{
+    public Map<String, Integer> createGame(String token, CreateGameRequest request) throws ServiceException, DataAccessException{
         verify(token);
         //if game name of request is blank or doesnt exist, throw exception
         if (request == null || request.gameName() == null || request.gameName().isBlank())
