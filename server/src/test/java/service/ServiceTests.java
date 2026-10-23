@@ -109,4 +109,35 @@ public class ServiceTests {
 
         assertThrows(UnauthorizedException.class, () -> gameService.listGames(auth.authToken()));
     }
+
+    @Test
+    public void listGamesSuccess() throws Exception {
+        var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
+        gameService.createGame(auth.authToken(), new CreateGameRequest("Game1"));
+        gameService.createGame(auth.authToken(), new CreateGameRequest("Game2"));
+
+        var result = gameService.listGames(auth.authToken());
+        assertNotNull(result);
+        assertEquals(2, result.games().size());
+    }
+
+    @Test
+    public void listGamesUnauthorized() {
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames("invalid-token"));
+    }
+
+    @Test
+    public void registerBadRequest() {
+        assertThrows(BadRequestException.class, () ->
+                userService.register(new RegisterRequest(null, "pass", "email@test.com"))
+        );
+    }
+
+    @Test
+    public void joinGameNonexistentGame() throws Exception {
+        var auth = userService.register(new RegisterRequest("user1", "pass", "email@test.com"));
+        assertThrows(BadRequestException.class, () ->
+                gameService.joinGame(auth.authToken(), new JoinGameRequest("WHITE", 99999))
+        );
+    }
 }

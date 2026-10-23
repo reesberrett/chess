@@ -3,7 +3,6 @@ package server;
 import io.javalin.*;
 import io.javalin.http.Context;
 import dataaccess.*;
-import io.javalin.http.staticfiles.Location;
 import service.*;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> {
-            //config.staticFiles.add("/web", Location.CLASSPATH);
+            config.staticFiles.add("web");
         });
 
         UserDAO userDAO = new MemoryUserDAO();
@@ -52,6 +51,7 @@ public class Server {
         javalin.stop();
     }
 
+    //helper functions for handling operations
     private void handleClear(Context c) throws Exception{
         clearService.clear();
         c.status(200).result("{}").contentType("application/json");    }
@@ -105,9 +105,9 @@ public class Server {
 
     private void handleServiceException(ServiceException e, Context c) {
         String msg = e.getMessage();
-        if (msg == null || !msg.startsWith("Error:")) {
+        if (msg == null || !msg.startsWith("Error:"))
             msg = "Error: " + (msg == null ? "unknown" : msg);
-        }
+
         c.status(e.getStatusCode()).result(gson.toJson(Map.of("message", msg)));
     }
 
