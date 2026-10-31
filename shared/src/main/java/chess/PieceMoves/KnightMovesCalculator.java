@@ -64,7 +64,6 @@ public class KnightMovesCalculator implements MoveCalculator {
 
             if (currentPiece == null || currentPiece.getTeamColor() != color)
                 moves.add(new ChessMove(myPosition, currentPosition, null));
-
         }
 
         //Moving right 2 and down 1

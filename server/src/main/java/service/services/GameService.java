@@ -1,7 +1,11 @@
-package service;
-import chess.ChessGame;
+package service.services;
 import dataaccess.*;
 import model.*;
+import service.exceptions.*;
+import service.requests.JoinGameRequest;
+import service.results.ListGamesResult;
+import service.requests.CreateGameRequest;
+
 import java.util.Map;
 
 public class GameService {
@@ -14,7 +18,7 @@ public class GameService {
     }
 
     //helper function to verify tokens before preceding
-    private AuthData verify(String token) throws UnauthorizedException, DataAccessException{
+    private AuthData verify(String token) throws UnauthorizedException, DataAccessException {
         //if token is null, throw exception
         if (token == null)
             throw new UnauthorizedException("Error: unauthorized");

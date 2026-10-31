@@ -1,6 +1,10 @@
-package service;
+package service.services;
 import dataaccess.*;
 import model.*;
+import service.exceptions.*;
+import service.requests.LoginRequest;
+import service.requests.RegisterRequest;
+
 import java.util.UUID;
 
 public class UserService {
@@ -12,7 +16,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public AuthData register(RegisterRequest request) throws ServiceException, DataAccessException{
+    public AuthData register(RegisterRequest request) throws ServiceException, DataAccessException {
         //if any field is empty or null, throw exception
         if (request == null || request.username() == null || request.password() == null || request.email() == null || request.username().isBlank() || request.password().isBlank() || request.email().isBlank())
             throw new BadRequestException("Error: bad request");

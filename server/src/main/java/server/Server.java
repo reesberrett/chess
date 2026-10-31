@@ -2,11 +2,14 @@ package server;
 
 import io.javalin.*;
 import io.javalin.http.Context;
-import dataaccess.*;
-import service.*;
 import java.util.Map;
 
+import dataaccess.*;
 import com.google.gson.Gson;
+import service.exceptions.DataAccessException;
+import service.exceptions.ServiceException;
+import service.requests.*;
+import service.services.*;
 
 public class Server {
 
@@ -15,6 +18,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final Gson gson = new Gson();
+    private final ServerHandler handler;
 
     public Server() {
         javalin = Javalin.create(config -> {
@@ -25,13 +29,14 @@ public class Server {
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
 
-        this.clearService = new ClearService(userDAO, authDAO, gameDAO);
-        this.userService = new UserService(userDAO, authDAO);
-        this.gameService = new GameService(gameDAO, authDAO);
+        clearService = new ClearService(userDAO, authDAO, gameDAO);
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
+        handler = new ServerHandler(clearService, userService, gameService);
 
         //route registration
-        javalin.delete("/db", this::handleClear);
-        javalin.post("/user", this::handleRegister);
+        javalin.delete("/db", handler::handleClear);
+        javalin.post("/user", handler::handleRegister);
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
         javalin.get("/game", this::handleListGames);
@@ -39,7 +44,7 @@ public class Server {
         javalin.put("/game", this::handleJoinGame);
 
         javalin.exception(ServiceException.class, this::handleServiceException);
-        javalin.exception(Exception.class, this::handleGeneralException);
+        //javalin.exception(Exception.class, this::handleGeneralException);
     }
 
     public int run(int desiredPort) {
@@ -52,24 +57,25 @@ public class Server {
     }
 
     //helper functions for handling operations
-    private void handleClear(Context c) throws Exception{
+    private void handleClear(Context c) throws DataAccessException {
         clearService.clear();
-        c.status(200).result("{}").contentType("application/json");    }
+        c.status(200).result("{}").contentType("application/json");
+    }
 
-    private void handleRegister(Context c) throws Exception {
+    private void handleRegister(Context c) throws DataAccessException, ServiceException {
         var request = gson.fromJson(c.body(), RegisterRequest.class);
         var result = userService.register(request);
         c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
-    private void handleLogin(Context c) throws Exception {
+    private void handleLogin(Context c) throws DataAccessException, ServiceException {
         var request = gson.fromJson(c.body(), LoginRequest.class);
         var result = userService.login(request);
         c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
-    private void handleLogout(Context c) throws Exception{
-        String token = c.header("Authorization"); // HTTP headers are case-insensitive, but check for null
+    private void handleLogout(Context c) throws DataAccessException, ServiceException{
+        String token = c.header("Authorization");
         if (token == null)
             token = c.header("authorization");
 
@@ -77,7 +83,7 @@ public class Server {
         c.status(200).result("{}").contentType("application/json");
     }
 
-    private void handleListGames(Context c) throws Exception {
+    private void handleListGames(Context c) throws DataAccessException, ServiceException {
         String token = c.header("authorization");
         if (token == null)
             token = c.header("Authorization");
@@ -86,14 +92,14 @@ public class Server {
         c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
-    private void handleCreateGame(Context c) throws Exception{
+    private void handleCreateGame(Context c) throws DataAccessException, ServiceException{
         String token = c.header("authorization");
         var request = gson.fromJson(c.body(), CreateGameRequest.class);
         var result = gameService.createGame(token, request);
         c.status(200).result(gson.toJson(result)).contentType("application/json");
     }
 
-    private void handleJoinGame(Context c) throws Exception{
+    private void handleJoinGame(Context c) throws DataAccessException, ServiceException{
         String token = c.header("authorization");
         if (token == null)
             token = c.header("Authorization");
