@@ -44,7 +44,7 @@ public class Server {
         javalin.put("/game", this::handleJoinGame);
 
         javalin.exception(ServiceException.class, this::handleServiceException);
-        //javalin.exception(Exception.class, this::handleGeneralException);
+        javalin.exception(Exception.class, this::handleGeneralException);
     }
 
     public int run(int desiredPort) {
