@@ -58,7 +58,14 @@ public class PostLoginClient {
         //TODO
     }
 
-    private String help() throws ResponseException {
-        //TODO
+    public String help() {
+        return """
+                Available commands:
+                  create <NAME>             - create a new game
+                  list                      - list existing games
+                  join <ID> [WHITE|BLACK]   - join a game as White or Black
+                  observe <ID>              - observe a game
+                  logout                    - log out of your account
+                  help                      - display available commands""";
     }
 }

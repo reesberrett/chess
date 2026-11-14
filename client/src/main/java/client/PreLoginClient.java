@@ -36,10 +36,20 @@ public class PreLoginClient {
     }
 
     private String login(String... params) throws ResponseException {
-        //TODO
+        if (params.length != 2) {
+            throw new ResponseException(400, "Expected: login <USERNAME> <PASSWORD>");
+        }
+        var authData = facade.login(params[0], params[1]);
+        repl.setState(Repl.State.SIGNEDIN, authData.authToken());
+        return String.format("Logged in as %s.", authData.username());
     }
 
-    private String help() throws ResponseException {
-        //TODO
+    public String help() {
+        return """
+                Available commands:
+                  register <USERNAME> <PASSWORD> <EMAIL> - create an account
+                  login <USERNAME> <PASSWORD>            - log in to play chess
+                  quit                                   - exit the program
+                  help                                   - display available commands""";
     }
 }
