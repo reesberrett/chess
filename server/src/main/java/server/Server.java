@@ -5,6 +5,7 @@ import io.javalin.http.Context;
 import java.util.Map;
 
 import dataaccess.*;
+import dataaccess.sql.*;
 import com.google.gson.Gson;
 import service.exceptions.DataAccessException;
 import service.exceptions.ServiceException;
@@ -18,30 +19,29 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final Gson gson = new Gson();
-    private final ServerHandler handler;
 
     public Server() {
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
         });
 
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        UserDAO userDAO = new SQLUserDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
+        GameDAO gameDAO = new SQLGameDAO();
 
         clearService = new ClearService(userDAO, authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
-        handler = new ServerHandler(clearService, userService, gameService);
+        ServerHandler handler = new ServerHandler(clearService, userService, gameService);
 
         //route registration
         javalin.delete("/db", handler::handleClear);
         javalin.post("/user", handler::handleRegister);
-        javalin.post("/session", this::handleLogin);
-        javalin.delete("/session", this::handleLogout);
-        javalin.get("/game", this::handleListGames);
-        javalin.post("/game", this::handleCreateGame);
-        javalin.put("/game", this::handleJoinGame);
+        javalin.post("/session", handler::handleLogin);
+        javalin.delete("/session", handler::handleLogout);
+        javalin.get("/game", handler::handleListGames);
+        javalin.post("/game", handler::handleCreateGame);
+        javalin.put("/game", handler::handleJoinGame);
 
         javalin.exception(ServiceException.class, this::handleServiceException);
         javalin.exception(Exception.class, this::handleGeneralException);
