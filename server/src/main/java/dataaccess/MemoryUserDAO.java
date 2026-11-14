@@ -3,16 +3,19 @@ import model.*;
 import java.util.Map;
 import java.util.HashMap;
 
-public class MemoryUserDAO implements UserDAO{
+import org.mindrot.jbcrypt.BCrypt;
+
+public class MemoryUserDAO implements UserDAO {
     private final Map<String, UserData> users = new HashMap<>();
 
     @Override
-    public void createUser(UserData user){
-        users.put(user.username(), user);
+    public void createUser(UserData user) {
+        String hashPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+        users.put(user.username(), new UserData(user.username(), hashPassword, user.email()));
     }
 
     @Override
-    public UserData getUser(String username){
+    public UserData getUser(String username) {
         return users.get(username);
     }
 

@@ -25,13 +25,18 @@ public class Server {
             config.staticFiles.add("web");
         });
 
-        UserDAO userDAO = new SQLUserDAO();
-        AuthDAO authDAO = new SQLAuthDAO();
-        GameDAO gameDAO = new SQLGameDAO();
+        try {
+            UserDAO userDAO = new SQLUserDAO();
+            AuthDAO authDAO = new SQLAuthDAO();
+            GameDAO gameDAO = new SQLGameDAO();
 
-        clearService = new ClearService(userDAO, authDAO, gameDAO);
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
+            clearService = new ClearService(userDAO, authDAO, gameDAO);
+            userService = new UserService(userDAO, authDAO);
+            gameService = new GameService(gameDAO, authDAO);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initiate SQL DAOs: " + e.getMessage());
+        }
+
         ServerHandler handler = new ServerHandler(clearService, userService, gameService);
 
         //route registration

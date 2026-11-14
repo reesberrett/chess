@@ -6,6 +6,7 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 
 import java.util.UUID;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
     private final UserDAO userDAO;
@@ -40,7 +41,7 @@ public class UserService {
 
         //if user fields are incorrect, throw exception
         UserData user = userDAO.getUser(request.username());
-        if (user == null || !user.password().equals(request.password()))
+        if (user == null || !BCrypt.checkpw(request.password(), user.password()))
             throw new UnauthorizedException("Error: unauthorized");
 
         //create new token and authorization to add to authDAO
