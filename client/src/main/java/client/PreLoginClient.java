@@ -27,7 +27,12 @@ public class PreLoginClient {
     }
 
     private String register(String... params) throws ResponseException {
-        //TODO
+        if (params.length != 3) {
+            throw new ResponseException(400, "Expected: register <USERNAME> <PASSWORD> <EMAIL>");
+        }
+        var authData = facade.register(params[0], params[1], params[2]);
+        repl.setState(Repl.State.SIGNEDIN, authData.authToken());
+        return String.format("Registered and logged in as %s.", authData.username());
     }
 
     private String login(String... params) throws ResponseException {

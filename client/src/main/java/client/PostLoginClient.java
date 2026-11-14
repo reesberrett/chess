@@ -17,6 +17,11 @@ public class PostLoginClient {
         this.savedGames = new ArrayList<>();
     }
 
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+        this.savedGames.clear();
+    }
+
     public String eval(String input) throws ResponseException {
         var tokens = input.trim().split("\\s+");
         var cmd = (tokens.length > 0 && !tokens[0].isEmpty()) ? tokens[0].toLowerCase() : "help";
