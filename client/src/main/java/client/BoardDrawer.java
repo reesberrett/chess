@@ -5,23 +5,23 @@ import static ui.EscapeSequences.*;
 
 public class BoardDrawer {
 
-    public static void drawBoard(ChessBoard board, boolean whitePerspective) {
+    public static void drawBoard(ChessBoard board, boolean whiteView) {
         StringBuilder out = new StringBuilder("\n");
-        drawHeaders(out, whitePerspective);
+        drawHeaders(out, whiteView);
 
         for (int i = 0; i < 8; i++) {
-            int row = whitePerspective ? (8 - i) : (i + 1);
-            drawRow(out, board, row, whitePerspective);
+            int row = whiteView ? (8 - i) : (i + 1);
+            drawRow(out, board, row, whiteView);
         }
 
-        drawHeaders(out, whitePerspective);
+        drawHeaders(out, whiteView);
         out.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR);
         System.out.println(out);
     }
 
-    private static void drawHeaders(StringBuilder out, boolean whitePerspective) {
+    private static void drawHeaders(StringBuilder out, boolean whiteView) {
         out.append(SET_BG_COLOR_LIGHT_GREY).append(SET_TEXT_COLOR_BLACK).append("   ");
-        String[] cols = whitePerspective
+        String[] cols = whiteView
                 ? new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}
                 : new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
         for (String col : cols) {
@@ -30,11 +30,11 @@ public class BoardDrawer {
         out.append("   ").append(RESET_BG_COLOR).append("\n");
     }
 
-    private static void drawRow(StringBuilder out, ChessBoard board, int row, boolean whitePerspective) {
+    private static void drawRow(StringBuilder out, ChessBoard board, int row, boolean whiteView) {
         out.append(SET_BG_COLOR_LIGHT_GREY).append(SET_TEXT_COLOR_BLACK).append(" ").append(row).append(" ");
 
         for (int j = 0; j < 8; j++) {
-            int col = whitePerspective ? (j + 1) : (8 - j);
+            int col = whiteView ? (j + 1) : (8 - j);
             boolean isLightSquare = (row + col) % 2 != 0;
             out.append(isLightSquare ? SET_BG_COLOR_WHITE : SET_BG_COLOR_DARK_GREEN);
 
