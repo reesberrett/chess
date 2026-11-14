@@ -44,8 +44,9 @@ public class ServerHandler {
 
     public void handleLogout(Context c) throws DataAccessException, ServiceException{
         String token = c.header("Authorization");
-        if (token == null)
+        if (token == null) {
             token = c.header("authorization");
+        }
 
         userService.logout(token);
         c.status(200).result("{}").contentType("application/json");
@@ -53,8 +54,9 @@ public class ServerHandler {
 
     public void handleListGames(Context c) throws DataAccessException, ServiceException {
         String token = c.header("authorization");
-        if (token == null)
+        if (token == null) {
             token = c.header("Authorization");
+        }
 
         var result = gameService.listGames(token);
         c.status(200).result(gson.toJson(result)).contentType("application/json");
@@ -69,8 +71,9 @@ public class ServerHandler {
 
     public void handleJoinGame(Context c) throws DataAccessException, ServiceException{
         String token = c.header("authorization");
-        if (token == null)
+        if (token == null) {
             token = c.header("Authorization");
+        }
 
         var request = gson.fromJson(c.body(), JoinGameRequest.class);
         gameService.joinGame(token, request);
@@ -79,8 +82,9 @@ public class ServerHandler {
 
     public void handleServiceException(ServiceException e, Context c) {
         String msg = e.getMessage();
-        if (msg == null || !msg.startsWith("Error:"))
+        if (msg == null || !msg.startsWith("Error:")) {
             msg = "Error: " + (msg == null ? "unknown" : msg);
+        }
 
         c.status(e.getStatusCode()).result(gson.toJson(Map.of("message", msg)));
     }
