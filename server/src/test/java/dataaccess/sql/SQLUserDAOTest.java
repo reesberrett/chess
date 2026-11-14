@@ -50,4 +50,12 @@ public class SQLUserDAOTest {
         userDAO.clear();
         assertNull(userDAO.getUser("bob"));
     }
+
+    @Test
+    public void createUserNullFieldsNegative() {
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(null));
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(new UserData(null, "pass", "a@b.com")));
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(new UserData("alice", null, "a@b.com")));
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(new UserData("alice", "pass", null)));
+    }
 }

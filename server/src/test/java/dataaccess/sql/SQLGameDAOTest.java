@@ -109,4 +109,40 @@ public class SQLGameDAOTest {
         assertNull(gameDAO.getGame(id2));
         assertTrue(gameDAO.listGames().isEmpty());
     }
+
+    @Test
+    public void createGameBlankNameNegative() {
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame("   "));
+    }
+
+    @Test
+    public void updateGameNullNegative() {
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(null));
+    }
+
+    @Test
+    public void deleteGameNullNegative() {
+        assertThrows(DataAccessException.class, () -> gameDAO.deleteGame(null));
+    }
+
+    @Test
+    public void gamePersistenceAcrossDAOInstancesPositive() throws Exception {
+        int gameID = gameDAO.createGame("Persistent Match");
+        GameData initial = gameDAO.getGame(gameID);
+
+        ChessGame chessGame = initial.game();
+        chessGame.makeMove(new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5), null));
+        chessGame.makeMove(new ChessMove(new ChessPosition(7, 5), new ChessPosition(5, 5), null));
+
+        gameDAO.updateGame(new GameData(gameID, "whiteUser", "blackUser", "Persistent Match", chessGame));
+
+        // Create a fresh SqlGameDAO instance to verify persistence directly from MySQL
+        SQLGameDAO newDaoInstance = new SQLGameDAO();
+        GameData reloaded = newDaoInstance.getGame(gameID);
+
+        assertNotNull(reloaded);
+        assertEquals("whiteUser", reloaded.whiteUsername());
+        assertEquals("blackUser", reloaded.blackUsername());
+        assertEquals(chessGame, reloaded.game());
+    }
 }

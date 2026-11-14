@@ -64,4 +64,11 @@ public class SQLAuthDAOTest {
         assertNull(authDAO.getAuth("token-1"));
         assertNull(authDAO.getAuth("token-2"));
     }
+
+    @Test
+    public void createAuthNullFieldsNegative() {
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(null));
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(new AuthData(null, "alice")));
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(new AuthData("token-123", null)));
+    }
 }
