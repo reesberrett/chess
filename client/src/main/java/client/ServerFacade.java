@@ -21,7 +21,7 @@ public class ServerFacade {
     }
 
     public ServerFacade(int port) {
-        this.serverUrl = "http://localhost" + port;
+        this.serverUrl = "http://localhost:" + port;
     }
 
     public AuthData register(String username, String password, String email) throws ResponseException {
@@ -39,19 +39,25 @@ public class ServerFacade {
     }
 
     public int createGame(String authToken, String gameName) throws ResponseException {
-        //TODO
+        var body = Map.of("gameName", gameName);
+        record CreateResult(int gameID) {}
+        var res = makeRequest("POST", "/game", body, authToken, CreateResult.class);
+        return res.gameID();
     }
 
     public List<GameData> listGames(String authToken) throws ResponseException {
-        //TODO
+        record ListResult(List<GameData> games) {}
+        var res = makeRequest("GET", "/game", null, authToken, ListResult.class);
+        return res.games();
     }
 
     public void joinGame(String authToken, String playerColor, int gameID) throws ResponseException {
-        //TODO
+        var body = Map.of("playerColor", playerColor, "gameID", gameID);
+        makeRequest("PUT", "/game", body, authToken, null);
     }
 
     public void clear() throws ResponseException {
-        //TODO
+        makeRequest("DELETE", "/db", null, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass)
@@ -102,12 +108,10 @@ public class ServerFacade {
 
     private <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws Exception {
         T response = null;
-        if (http.getContentLength() < 0) {
+        if (responseClass != null) {
             try (InputStream respBody = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(respBody);
-                if (responseClass != null) {
-                    response = gson.fromJson(reader, responseClass);
-                }
+                response = gson.fromJson(reader, responseClass);
             }
         }
         return response;

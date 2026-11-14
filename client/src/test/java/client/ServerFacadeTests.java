@@ -1,6 +1,7 @@
 package client;
 
 import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 import server.Server;
 
 
@@ -108,5 +109,28 @@ public class ServerFacadeTests {
         int gameId = facade.createGame(auth1.authToken(), "Game1");
         facade.joinGame(auth1.authToken(), "WHITE", gameId);
         assertThrows(ResponseException.class, () -> facade.joinGame(auth2.authToken(), "WHITE", gameId));
+    }
+
+    @Test
+    void joinGameBlackAndInvalidId() throws Exception {
+        var auth = facade.register("player1", "password", "p1@email.com");
+        int gameId = facade.createGame(auth.authToken(), "Game1");
+        assertDoesNotThrow(() -> facade.joinGame(auth.authToken(), "BLACK", gameId));
+
+        ResponseException ex = assertThrows(ResponseException.class,
+                () -> facade.joinGame(auth.authToken(), "WHITE", 99999));
+        assertEquals(400, ex.statusCode());
+    }
+
+    @Test
+    void joinGameNegativeUnauthorized() {
+        assertThrows(ResponseException.class, () -> facade.joinGame("bad-token", "WHITE", 1));
+    }
+
+    @Test
+    void connectionFailureThrowsResponseException() {
+        var badFacade = new ServerFacade("http://localhost:1");
+        ResponseException ex = assertThrows(ResponseException.class, badFacade::clear);
+        assertEquals(500, ex.statusCode());
     }
 }
