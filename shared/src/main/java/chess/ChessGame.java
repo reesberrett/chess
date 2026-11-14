@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -284,21 +281,15 @@ public class ChessGame {
         return false;
     }
 
-
     private ChessPosition findKingPosition(TeamColor teamColor) {
-        for (int r = 1; r <= 8; r++) {
-            for (int c = 1; c <= 8; c++) {
-                ChessPosition pos = new ChessPosition(r, c);
-                ChessPiece piece = board.getPiece(pos);
-                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    return pos;
-                }
+        for (ChessPosition pos : allBoardPositions()) {
+            ChessPiece piece = board.getPiece(pos);
+            if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                return pos;
             }
         }
         return null;
     }
-
-
 
     /**
      * Determines if the given team is in checkmate
@@ -307,32 +298,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        //Must be in check
-        if (!isInCheck(teamColor)) {
-            return false;
-        }
-
-        //No piece must have valid moves
-
-        //Look for same-colored pieces
-        for (int r = 1; r <= 8; r++) {
-            for (int c = 1; c <= 8; c++) {
-                ChessPosition currentPosition = new ChessPosition(r, c);
-                ChessPiece currentPiece = board.getPiece(currentPosition);
-
-                //If there is a same-colored piece, check if it has any legal moves
-                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> legalMoves = validMoves(currentPosition);
-
-                    if (legalMoves != null && !legalMoves.isEmpty()) {
-                        //There are still legal moves: not checkmate
-                        return false;
-                    }
-                }
-            }
-        }
-        //There are no more legal moves: checkmate
-        return true;
+        return isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
     /**
@@ -343,31 +309,27 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        //Cannot be in check
-        if (isInCheck(teamColor)) {
-            return false;
-        }
+        return !isInCheck(teamColor) && !hasValidMoves(teamColor);
+    }
 
-        //No piece must have valid moves
-        //Look for same-colored pieces
-        for (int r = 1; r <= 8; r++) {
-            for (int c = 1; c <= 8; c++) {
-                ChessPosition currentPosition = new ChessPosition(r, c);
-                ChessPiece currentPiece = board.getPiece(currentPosition);
-
-                //If there is a same-colored piece, check if it has any legal moves
-                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> legalMoves = validMoves(currentPosition);
-
-                    if (legalMoves != null && !legalMoves.isEmpty()) {
-                        //There are still legal moves: not stalemate
-                        return false;
-                    }
-                }
+    private boolean hasValidMoves(TeamColor teamColor) {
+        for (ChessPosition pos : allBoardPositions()) {
+            ChessPiece piece = board.getPiece(pos);
+            if (piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()) {
+                return true;
             }
         }
-        //There are no more legal moves: stalemate
-        return true;
+        return false;
+    }
+
+    private List<ChessPosition> allBoardPositions() {
+        List<ChessPosition> positions = new ArrayList<>(64);
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                positions.add(new ChessPosition(r, c));
+            }
+        }
+        return positions;
     }
 
     /**
