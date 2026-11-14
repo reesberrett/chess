@@ -29,14 +29,14 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String token) throws DataAccessException {
-        String sql = "SELECT token, username FROM auth WHERE token = ?";
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        String sql = "SELECT authToken, username FROM auth WHERE authToken = ?";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
-            ps.setString(1, token);
+            ps.setString(1, authToken);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new AuthData(rs.getString("token"), rs.getString("username"));
+                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
                 }
             }
         } catch (SQLException e) {
@@ -46,11 +46,11 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String token) throws DataAccessException {
-        String sql = "DELETE FROM auth WHERE token = ?";
+    public void deleteAuth(String authToken) throws DataAccessException {
+        String sql = "DELETE FROM auth WHERE authToken = ?";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
-            ps.setString(1, token);
+            ps.setString(1, authToken);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Unable to delete auth: " + e.getMessage());
