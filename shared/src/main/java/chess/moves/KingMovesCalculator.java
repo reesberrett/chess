@@ -5,60 +5,63 @@ import chess.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class KingMovesCalculator implements MoveCalculator {
+public class KingMovesCalculator extends MoveCalculator {
+
+    private static final int[][] DIRECTIONS = {
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+    };
 
     @Override
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+        Collection<ChessMove> moves = calculateSingleStepMoves(board, myPosition, DIRECTIONS);
 
-        int r = myPosition.getRow();
-        int c = myPosition.getColumn();
-
-        int[][] directions = {
-                {1, 0}, {-1, 0}, {0, 1}, {0, -1},     // up, down, right, left
-                {1, 1}, {1, -1}, {-1, 1}, {-1, -1}    // Diagonal
-        };
-
-        for (int[] dir : directions) {
-            int nextRow = r + dir[0];
-            int nextCol = c + dir[1];
-
-            if (nextRow >= 1 && nextRow <= 8 && nextCol >= 1 && nextCol <= 8) {
-                ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
-                ChessPiece targetPiece = board.getPiece(nextPosition);
-
-                if (targetPiece == null || targetPiece.getTeamColor() != color) {
-                    moves.add(new ChessMove(myPosition, nextPosition, null));
-                }
-            }
-        }
-
-        // Castling
-        if (c == 5) {
-            boolean isWhite = (color == ChessGame.TeamColor.WHITE);
-            boolean kingMoved = isWhite ? board.getWhiteKingMoved() : board.getBlackKingMoved();
-
-            if (!kingMoved) {
-                boolean rookRightMoved = isWhite ? board.getWhiteRookRightMoved() : board.getBlackRookRightMoved();
-                boolean rookLeftMoved = isWhite ? board.getWhiteRookLeftMoved() : board.getBlackRookLeftMoved();
-
-                // Kingside castle (columns 6 and 7 empty)
-                ChessPosition gPosition = new ChessPosition(r, 7);
-                if (!rookRightMoved && board.getPiece(new ChessPosition(r, 6)) == null && board.getPiece(gPosition) == null) {
-                    moves.add(new ChessMove(myPosition, gPosition, null));
-                }
-
-                // Queenside castle (columns 2, 3, and 4 empty)
-                ChessPosition cPosition = new ChessPosition(r, 3);
-                if (!rookLeftMoved && board.getPiece(new ChessPosition(r, 4)) == null
-                        && board.getPiece(cPosition) == null && board.getPiece(new ChessPosition(r, 2)) == null) {
-                    moves.add(new ChessMove(myPosition, cPosition, null));
-                }
-            }
-        }
+        // Keep your existing castling logic here to add to `moves`
+        addCastlingMoves(board, myPosition, moves);
 
         return moves;
     }
 
+    private void addCastlingMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+        ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+
+        boolean isWhite = (color == ChessGame.TeamColor.WHITE);
+        int expectedRow = isWhite ? 1 : 8;
+
+        // King must be on its starting square (e1 for White, e8 for Black)
+        if (r != expectedRow || c != 5) {
+            return;
+        }
+
+        boolean kingMoved = isWhite ? board.getWhiteKingMoved() : board.getBlackKingMoved();
+        if (kingMoved) {
+            return;
+        }
+
+        boolean rookRightMoved = isWhite ? board.getWhiteRookRightMoved() : board.getBlackRookRightMoved();
+        boolean rookLeftMoved = isWhite ? board.getWhiteRookLeftMoved() : board.getBlackRookLeftMoved();
+
+        // Kingside castle: Rook on col 8 hasn't moved, and cols 6 & 7 are empty
+        if (!rookRightMoved && isRookAt(board, r, 8, color)
+                && isEmpty(board, r, 6) && isEmpty(board, r, 7)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(r, 7), null));
+        }
+
+        // Queenside castle: Rook on col 1 hasn't moved, and cols 2, 3, & 4 are empty
+        if (!rookLeftMoved && isRookAt(board, r, 1, color)
+                && isEmpty(board, r, 4) && isEmpty(board, r, 3) && isEmpty(board, r, 2)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(r, 3), null));
+        }
+    }
+
+    private boolean isEmpty(ChessBoard board, int row, int col) {
+        return board.getPiece(new ChessPosition(row, col)) == null;
+    }
+
+    private boolean isRookAt(ChessBoard board, int row, int col, ChessGame.TeamColor color) {
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        return piece != null && piece.getTeamColor() == color && piece.getPieceType() == ChessPiece.PieceType.ROOK;
+    }
 }

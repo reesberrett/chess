@@ -15,6 +15,19 @@ public class ChessPiece {
     private final PieceType type;
     private final ChessGame.TeamColor color;
 
+    private static final int[][] ROOK_DIRECTIONS = {
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+
+    private static final int[][] BISHOP_DIRECTIONS = {
+            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+    };
+
+    private static final int[][] QUEEN_DIRECTIONS = {
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+    };
+
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.type = type;
         this.color = pieceColor;
@@ -68,12 +81,14 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         MoveCalculator calculator;
 
+
+
         switch(type) {
             case PAWN -> calculator = new PawnMovesCalculator();
             case KNIGHT -> calculator = new KnightMovesCalculator();
-            case BISHOP -> calculator = new BishopMovesCalculator();
-            case ROOK -> calculator = new RookMovesCalculator();
-            case QUEEN -> calculator = new QueenMovesCalculator();
+            case BISHOP -> calculator = new LateralMovesCalculator(BISHOP_DIRECTIONS);
+            case ROOK -> calculator = new LateralMovesCalculator(ROOK_DIRECTIONS);
+            case QUEEN -> calculator = new LateralMovesCalculator(QUEEN_DIRECTIONS);
             case KING -> calculator = new KingMovesCalculator();
             default -> throw new IllegalArgumentException("Invalid type for piece");
         }

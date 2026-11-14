@@ -58,7 +58,8 @@ public class SQLGameDAO implements GameDAO{
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
                     ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), chessGame
+                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                            rs.getString("blackUsername"), rs.getString("gameName"), chessGame
                     );
                 }
             }

@@ -1,23 +1,21 @@
 package chess.moves;
 
-import chess.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BishopMovesCalculator implements MoveCalculator {
+import chess.*;
+
+public class LateralMovesCalculator extends MoveCalculator {
+    private final int[][] directions;
+
+    public LateralMovesCalculator(int[][] directions) {
+        this.directions = directions;
+    }
 
     @Override
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
-
-        int[][] directions = {
-                {1, 1},   // Up-right
-                {1, -1},  // Up-left
-                {-1, 1},  // Down-right
-                {-1, -1}  // Down-left
-        };
 
         for (int[] dir : directions) {
             int r = myPosition.getRow() + dir[0];
@@ -25,12 +23,12 @@ public class BishopMovesCalculator implements MoveCalculator {
 
             while (r >= 1 && r <= 8 && c >= 1 && c <= 8) {
                 ChessPosition nextPosition = new ChessPosition(r, c);
-                ChessPiece nextPiece = board.getPiece(nextPosition);
+                ChessPiece targetPiece = board.getPiece(nextPosition);
 
-                if (nextPiece == null) {
+                if (targetPiece == null) {
                     moves.add(new ChessMove(myPosition, nextPosition, null));
                 } else {
-                    if (nextPiece.getTeamColor() != color) {
+                    if (targetPiece.getTeamColor() != color) {
                         moves.add(new ChessMove(myPosition, nextPosition, null));
                     }
                     break;
@@ -41,5 +39,4 @@ public class BishopMovesCalculator implements MoveCalculator {
         }
         return moves;
     }
-
 }

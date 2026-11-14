@@ -19,7 +19,8 @@ public class UserService {
 
     public AuthData register(RegisterRequest request) throws ServiceException, DataAccessException {
         //if any field is empty or null, throw exception
-        if (request == null || request.username() == null || request.password() == null || request.email() == null || request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
+        if (request == null || request.username() == null || request.password() == null || request.email() == null ||
+                request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
             throw new BadRequestException("Error: bad request");
         }
 
