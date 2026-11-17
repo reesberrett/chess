@@ -45,7 +45,7 @@ public class PostLoginClient {
             throw new ResponseException(400, "Expected: create <NAME>");
         }
         facade.createGame(authToken, params[0]);
-        return String.format("Created game '%s.", params[0]);
+        return String.format("Created game %s.", params[0]);
     }
 
     private String listGames() throws ResponseException {

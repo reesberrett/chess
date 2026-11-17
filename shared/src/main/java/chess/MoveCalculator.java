@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public abstract class MoveCalculator {
     public abstract Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition);
 
+    //For King and Knight moves
     protected Collection<ChessMove> calculateSingleStepMoves(ChessBoard board, ChessPosition myPosition, int[][] offsets) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
@@ -26,7 +27,6 @@ public abstract class MoveCalculator {
                 }
             }
         }
-
         return moves;
     }
 }

@@ -21,13 +21,13 @@ public class PawnMovesCalculator extends MoveCalculator{
 
         int nextRow = r + direction;
 
-        // 1. Moving forward (1 or 2 steps)
+        //Moving forward (1 or 2 steps)
         if (nextRow >= 1 && nextRow <= 8) {
             ChessPosition oneStepPos = new ChessPosition(nextRow, c);
             if (board.getPiece(oneStepPos) == null) {
                 addMoveWithPromotion(moves, myPosition, oneStepPos, nextRow == promotionRow);
 
-                // Moving 2 steps forward from start
+                //Moving 2 steps forward from start
                 if (r == startRow) {
                     ChessPosition twoStepPos = new ChessPosition(r + (2 * direction), c);
                     if (board.getPiece(twoStepPos) == null) {
@@ -37,8 +37,9 @@ public class PawnMovesCalculator extends MoveCalculator{
             }
         }
 
-        // 2. Diagonal captures & En Passant (left = -1, right = +1)
-        ChessPosition epPosition = board.getEnPassantPosition();
+        //Diagonal captures & En Passant
+        ChessPosition enPassantPosition = board.getEnPassantPosition();
+        //Capture pieces diagonally in front of pawn
         int[] captureOffsets = {-1, 1};
 
         for (int offset : captureOffsets) {
@@ -47,17 +48,16 @@ public class PawnMovesCalculator extends MoveCalculator{
                 ChessPosition capturePos = new ChessPosition(nextRow, nextCol);
                 ChessPiece targetPiece = board.getPiece(capturePos);
 
-                // Standard diagonal capture
+                //Standard diagonal capture
                 if (targetPiece != null && targetPiece.getTeamColor() != color) {
                     addMoveWithPromotion(moves, myPosition, capturePos, nextRow == promotionRow);
                 }
-                // En Passant capture
-                else if (capturePos.equals(epPosition)) {
-                    moves.add(new ChessMove(myPosition, epPosition, null));
+                //En Passant capture
+                else if (capturePos.equals(enPassantPosition)) {
+                    moves.add(new ChessMove(myPosition, enPassantPosition, null));
                 }
             }
         }
-
         return moves;
     }
 
@@ -71,5 +71,7 @@ public class PawnMovesCalculator extends MoveCalculator{
             moves.add(new ChessMove(start, end, null));
         }
     }
+
+    //private void addMoveCapture(Collection<ChessMove> moves, )
 
 }
